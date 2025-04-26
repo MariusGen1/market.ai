@@ -1,13 +1,29 @@
 const express = require('express');
 const db = require('../Database/db');
 const router = express.Router();
+const { spawn } = require('child_process');
+const logger = require('../logger');
 
 router.post('/createUser', async (req,res,next) => {
     const { uid, financial_literacy_level } = req.body;
 
     try {
+        const existing_user = await db.getOne('SELECT uid FROM users WHERE uid = ?', [uid]);
+        if (existing_user) return res.status(400).send('User already exists');
+
         await db.insert('INSERT INTO users (uid, financial_literacy_level) VALUES (?,?)', [uid, financial_literacy_level]);
-        return res.status(200).send('Success');
+       
+        let error = '';
+        const process = spawn('python3', ['launch-user-agent.py', uid]);
+        py.stderr.on('data', (data) => { error += data.toString(); });
+
+        process.on('close', (code) => {
+            if (code === 0) return res.status(200).send('Success');
+            else {
+                logger.error(error);
+                return res.status(500).send('Failed to create personal agent');
+            }
+        });
 
     } catch(e) { next(e); }
 });

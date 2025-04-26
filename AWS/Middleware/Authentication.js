@@ -3,7 +3,7 @@ const logger = require("../logger");
 
 const authentication = async (req, res, next) => {
     const exempted_routes = [
-        '/diningHallMealPeriods',
+        '/createUser',
     ];
 
     const endpoint = req.url.split('?')[0];
