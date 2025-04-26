@@ -33,3 +33,36 @@ CREATE TABLE articles (
     importance_level INT NOT NULL,
     uid VARCHAR(255) NOT NULL REFERENCES users(uid) ON DELETE CASCADE
 );
+
+INSERT INTO articles (
+    title,
+    body,
+    image_url,
+    sources,
+    importance_level,
+    uid
+) VALUES
+(
+    'S&P 500 Recovers After Historic Volatility Amid Tariff Fears',
+    'The S&P 500 staged a dramatic recovery this week, clawing back half of its losses from a sharp decline triggered by renewed tariff threats. Investors have faced one of the most volatile months in recent history, as concerns over escalating trade tensions between the U.S. and China sent shockwaves through global markets. Analysts say further progress will depend on clarity from policymakers and signs of easing rhetoric from both sides. Despite the rebound, market watchers caution that continued volatility could present risks for overbought stocks in the weeks ahead.',
+    'https://image.cnbcfm.com/api/v1/image/stock-market-volatility.jpg',
+    'CNBC, "S&P 500 recovers half of its tariff decline. What it will take to make it all the way back" (2025-04-26); CNBC, "These four stocks just entered overbought territory and could be due for a drop if volatility persists" (2025-04-26)',
+    5,
+    'user123'
+),
+(
+    'Americans Turn to ''Buy Now, Pay Later'' for Groceries as Economic Concerns Mount',
+    'A growing number of Americans are using "buy now, pay later" (BNPL) services to purchase everyday essentials, including groceries, according to a new survey. The trend highlights rising economic anxiety, with more consumers struggling to cover basic expenses amid persistent inflation and uncertain job prospects. Notably, the survey found a rise in late payments on these short-term loans, raising concerns among financial experts about household debt and the long-term sustainability of BNPL usage for necessities.',
+    'https://image.abcnews.com/api/v1/image/bnpl-groceries.jpg',
+    'CNBC, "More Americans are financing groceries with buy now, pay later loans - and more are paying those bills late, survey says" (2025-04-26); WSJ, "Americans Are Downbeat on the Economy. They Keep Spending Anyway." (2025-04-26)',
+    4,
+    'user123'
+),
+(
+    'Tesla Profits Plunge 71% as Anti-Musk Sentiment Hits Sales',
+    'Tesla reported a staggering 71% drop in first-quarter profits, missing Wall Street expectations and sending shares lower in after-hours trading. The electric vehicle maker has faced mounting backlash tied to CEO Elon Musk''s political activities, which have sparked protests and calls for boycotts at dealerships worldwide. Analysts say the company’s challenges are compounded by intensifying competition in the EV market and ongoing supply chain disruptions. Tesla’s leadership has pledged to address consumer concerns and stabilize operations in the coming months.',
+    'https://image.abcnews.com/api/v1/image/tesla-profits-drop.jpg',
+    'ABC News, "Tesla profits drop 71% amid anti-Musk backlash" (2025-04-22); CNBC, "Amazon and Nvidia say all options are on the table to power AI including fossil fuels" (2025-04-26)',
+    5,
+    'user123'
+);
