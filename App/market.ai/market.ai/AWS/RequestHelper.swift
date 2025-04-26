@@ -151,3 +151,15 @@ fileprivate extension URLRequest {
         )
     }
 }
+
+extension String {
+    enum DateParsingError: Error { case InvalidFormat }
+
+    func parseDBTimestamp() throws -> Date {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        
+        if let date = dateFormatter.date(from: self) { return date }
+        else { throw DateParsingError.InvalidFormat }
+    }
+}

@@ -5,13 +5,24 @@ const { spawn } = require('child_process');
 const logger = require('../logger');
 
 router.post('/createUser', async (req,res,next) => {
-    const { uid, financial_literacy_level } = req.body;
+    const { uid, financial_literacy_level, stocks } = req.body;
+    if (!uid) return res.status(400).send('Missing uid');
+    if (financial_literacy_level === null) return res.status(400).send('Missing financial_literacy_server');
+    if (!stocks) return res.status(400).send('Missing stocks');  
 
     try {
         const existing_user = await db.getOne('SELECT uid FROM users WHERE uid = ?', [uid]);
         if (existing_user) return res.status(400).send('User already exists');
 
         await db.insert('INSERT INTO users (uid, financial_literacy_level) VALUES (?,?)', [uid, financial_literacy_level]);
+
+        for (let i=0; i<stocks.length; i++) {
+            const stock = stocks[i];
+            let existing_ticker =  await db.getOne('SELECT ticker FROM stocks WHERE ticker = ?', [stock.ticker]);
+            if (!existing_ticker) await db.insert('INSERT INTO tickers (symbol, name, market_cap, icon_url) VALUES (?)', [stock.ticker, stock.name, stock.market_cap, stock.icon_url]);
+
+            await db.insert('INSERT INTO portfolio_contents (uid, stock_ticker) VALUES (?,?)', [req.user.uid, stock.ticker]);
+        }
        
         let error = '';
         const process = spawn('python3', ['launch-user-agent.py', uid]);
@@ -29,21 +40,18 @@ router.post('/createUser', async (req,res,next) => {
 });
 
 router.post('/updatePortfolio', async (req,res,next) => {
-    const { tickers } = req.body;
-    if (!tickers) return res.status(400).json({ error: 'Tickers are required' });
+    const { stocks } = req.body;
+    if (!stocks) return res.status(400).json({ error: 'Tickers are required' });
 
     try {
         await db.do('DELETE FROM portfolio_contents WHERE uid = ?', [uid]);
 
-        for (let i=0; i<tickers.length; i++) {
-            const ticker = tickers[i];
-            let existing_ticker =  await db.getOne('SELECT ticker_id FROM tickers WHERE symbol = ?', [ticker.symbol]);
-            let ticker_id;
+        for (let i=0; i<stocks.length; i++) {
+            const stock = stocks[i];
+            let existing_ticker =  await db.getOne('SELECT ticker FROM stocks WHERE ticker = ?', [stock.ticker]);
+            if (!existing_ticker) await db.insert('INSERT INTO tickers (symbol, name, market_cap, icon_url) VALUES (?)', [stock.ticker, stock.name, stock.market_cap, stock.icon_url]);
 
-            if (!existing_ticker) ticker_id = await db.insert('INSERT INTO tickers (symbol, name, icon_url, market_cap) VALUES (?)', [ticker.symbol, ticker.name, ticker.icon_url, ticker.market_cap]);
-            else ticker_id = existing_ticker.ticker_id;
-
-            await db.insert('INSERT INTO portfolio_contents (uid, ticker_id) VALUES (?,?)', [req.user.uid, ticker_id]);
+            await db.insert('INSERT INTO portfolio_contents (uid, stock_ticker) VALUES (?,?)', [req.user.uid, stock.ticker]);
         }
 
         return res.status(200).send('Success');
@@ -67,9 +75,9 @@ router.get('/portfolio', async (req,res,next) => {
         const data = await db.do(`
         SELECT t.*
         FROM portfolio_contents pc
-        INNER JOIN tickers t ON pc.ticker_id = t.ticker_id
+        INNER JOIN stocks s ON pc.stock_ticker = s.ticker
         WHERE pc.uid = ?
-        ORDER BY added_ts ASC
+        ORDER BY s.market_cap DESC
         `, [req.user.uid]);
 
         return res.status(200).send(data);
