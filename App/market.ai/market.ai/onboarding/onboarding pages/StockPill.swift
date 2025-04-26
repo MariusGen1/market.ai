@@ -1,60 +1,64 @@
 import SwiftUI
 
 struct StockPill: View {
-    let stock: Stock
-    @Binding var selectedStocks: [Stock]
+  let stock: Stock
+  @Binding var selectedStocks: [Stock]
 
-    private var isSelected: Bool {
-        selectedStocks.contains { $0.ticker == stock.ticker }
-    }
+  private var isSelected: Bool {
+    selectedStocks.contains { $0.ticker == stock.ticker }
+  }
 
-    var body: some View {
-        HStack(spacing: 8) {
-            // 1. If we have a hardcoded Image, use it:
-            if let img = stock.hardcodedImage {
-                img
-                    .resizable()
-                    .frame(width: 27, height: 27)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .padding(.trailing, 10)
+  var body: some View {
+    HStack(spacing: 8) {
+      // hardcoded image preferred…
+      if let img = stock.hardcodedImage {
+        img
+          .resizable()
+          .frame(width:27, height:27)
+          .clipShape(RoundedRectangle(cornerRadius:8))
+          .padding(.trailing,10)
 
-            // 2. Otherwise fall back to AsyncImage(URL)
-            } else if let url = stock.iconUrl {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .empty:
-                        Color.gray.opacity(0.2).frame(width: 27, height: 27)
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 27, height: 27)
-                    case .failure:
-                        Color.red.opacity(0.2).frame(width: 27, height: 27)
-                    @unknown default:
-                        EmptyView()
-                    }
-                }
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .padding(.trailing, 10)
-            }
-
-            Text(stock.ticker)
-                .font(.system(size: 12, weight: .bold))
-                .foregroundColor(.white)
+      // else fall back to your computed URL
+      } else if let url = stock.iconUrlWithAPIKey {
+        AsyncImage(url: url) { phase in
+          switch phase {
+          case .empty:
+            Color.clear.frame(width:27, height:27)
+          case .success(let img):
+            img
+              .resizable()
+              .aspectRatio(contentMode:.fill)
+              .frame(width:27, height:27)
+          case .failure:
+            Color.gray.opacity(0.2).frame(width:27,height:27)
+          @unknown default:
+            EmptyView()
+          }
         }
-        .padding(12)
-        .background(isSelected ? Color.green.opacity(0.8) : Color.gray.opacity(0.2))
-        .cornerRadius(30)
-        .onTapGesture {
-            if let idx = selectedStocks.firstIndex(where: { $0.ticker == stock.ticker }) {
-                selectedStocks.remove(at: idx)
-            } else {
-                selectedStocks.append(stock)
-            }
-        }
+        .clipShape(RoundedRectangle(cornerRadius:8))
+        .padding(.trailing,10)
+      }
+
+      Text(stock.ticker.isEmpty ? stock.name : stock.ticker)
+        .font(.system(size:12, weight:.bold))
+        .foregroundColor(.white)
     }
+    .padding(12)
+    .background(isSelected
+                ? Color.green.opacity(0.8)
+                : Color.gray.opacity(0.2))
+    .cornerRadius(30)
+    .onTapGesture {
+      if let idx = selectedStocks.firstIndex(where: { $0.ticker == stock.ticker }) {
+        selectedStocks.remove(at: idx)
+      } else {
+        selectedStocks.append(stock)
+      }
+    }
+  }
 }
+
+
 
 
 
