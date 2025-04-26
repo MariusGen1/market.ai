@@ -8,6 +8,7 @@
 import Foundation
 
 struct Stock: Decodable, Encodable {
+    
     let name: String
     let ticker: String
     let marketCap: Int

@@ -2,15 +2,19 @@ import SwiftUI
 
 struct FYP: View {
     @State private var greeting = ""
-    @State private var selectedStock: Ticker? = nil
+    @State private var selectedStock: Stock? = nil
     
-    @State private var portfolio: [Ticker] = [
-        Ticker(name: "Tesla", iconUrl: URL(string: "https://logo.clearbit.com/tesla.com")!, marketCap: 34729323),
-        Ticker(name: "Apple", iconUrl: URL(string: "https://logo.clearbit.com/apple.com")!, marketCap: 2789232389),
-        Ticker(name: "Amazon", iconUrl: URL(string: "https://logo.clearbit.com/amazon.com")!, marketCap: 1382932389),
-        Ticker(name: "Google", iconUrl: URL(string: "https://logo.clearbit.com/google.com")!, marketCap: 1892932389),
-        Ticker(name: "Microsoft", iconUrl: URL(string: "https://logo.clearbit.com/microsoft.com")!, marketCap: 2492932389),
-        Ticker(name: "Meta", iconUrl: URL(string: "https://logo.clearbit.com/meta.com")!, marketCap: 972932389)
+    @State private var portfolio: [Stock] = [
+        Stock(name: "Apple", ticker: "AAPL", marketCap: 3872409585350, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/YXBwbGUuY29t/images/2025-04-04_icon.png")!),
+        Stock(name: "Microsoft", ticker: "MSFT", marketCap: 3133802247084, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/bWljcm9zb2Z0LmNvbQ/images/2025-04-04_icon.png")!),
+        Stock(name: "Alphabet", ticker: "GOOGL", marketCap: 1876556400000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/YWxwaGFiZXQuY29t/images/2025-04-04_icon.png")!),
+        Stock(name: "Amazon", ticker: "AMZN", marketCap: 2005630000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/YW1hem9uLmNvbQ/images/2025-04-04_icon.png")!),
+        Stock(name: "NVIDIA", ticker: "NVDA", marketCap: 2708640000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/bnZpZGlhLmNvbQ/images/2025-04-04_icon.png")!),
+        Stock(name: "Berkshire Hathaway", ticker: "BRK.B", marketCap: 1145090000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/YmVya3NoaXJlLmNvbQ/images/2025-04-04_icon.png")!),
+        Stock(name: "Tesla", ticker: "TSLA", marketCap: 917810000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/dGVzbGEuY29t/images/2025-04-04_icon.png")!),
+        Stock(name: "Meta Platforms", ticker: "META", marketCap: 1448168302087, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/bWV0YS5jb20/images/2025-04-04_icon.png")!),
+        Stock(name: "UnitedHealth Group", ticker: "UNH", marketCap: 418640000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/dW5pdGVkaGVhbHRoZ3JvdXAuY29t/images/2025-04-04_icon.png")!),
+        Stock(name: "Johnson & Johnson", ticker: "JNJ", marketCap: 154580000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/am5qLmNvbQ/images/2025-04-04_icon.png")!),
     ]
 
     var body: some View {
@@ -44,8 +48,8 @@ struct FYP: View {
                     HStack(spacing: 15) {
                         ForEach(portfolio, id: \.name) { stock in
                             StockPillFYP(
-                                icon: stock.iconUrl,
-                                ticker: stock.name,
+                                icon: stock.iconUrl!,
+                                ticker: stock.ticker,
                                 isSelected: selectedStock?.name == stock.name,
                                 onTap: {
                                     selectedStock = stock

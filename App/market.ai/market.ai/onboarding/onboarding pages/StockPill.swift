@@ -2,12 +2,12 @@ import SwiftUI
 
 struct StockPill: View {
     
-    let icon: URL
+    let icon: URL?
     let ticker: String
     
-    @Binding var selectedStocks: [Ticker]
+    @Binding var selectedStocks: [Stock]
     
-    var isSelected: Bool { selectedStocks.contains(where: { $0.name == ticker })}
+    var isSelected: Bool { selectedStocks.contains(where: { $0.ticker == ticker })}
     
     var body: some View {
         HStack(spacing: 0) {
@@ -43,10 +43,11 @@ struct StockPill: View {
                 selectedStocks.remove(at: index)
             } else {
                 selectedStocks.append(
-                    Ticker(
-                        name: ticker,
-                        iconUrl: icon,
-                        marketCap: 0
+                    Stock(
+                        name: "",
+                        ticker: ticker,
+                        marketCap: 0,
+                        iconUrl: icon
                     )
                 )
             }

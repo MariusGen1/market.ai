@@ -4,8 +4,8 @@ struct OnboardStocks: View {
 
     @Binding var selectedTab: Int
     
-    @State private var stocks: [Ticker] = []
-    @State private var selectedStocks: [Ticker] = []
+    @State private var stocks: [Stock] = []
+    @State private var selectedStocks: [Stock] = []
     
     @State private var searchText: String = ""
     @State private var showSelections: Bool = false
@@ -56,7 +56,7 @@ struct OnboardStocks: View {
                 
                 
                 StockList(
-                    stocks: stocks.isEmpty ? top50Tickers : stocks,
+                    stocks: stocks.isEmpty ? top50stocks : stocks,
                     searchText: $searchText,
                     selectedStocks: $selectedStocks
                 )
@@ -122,9 +122,9 @@ struct OnboardStocks: View {
 }
 
 struct StockList: View {
-    let stocks: [Ticker]
+    let stocks: [Stock]
     @Binding var searchText: String
-    @Binding var selectedStocks: [Ticker]
+    @Binding var selectedStocks: [Stock]
     
     var body: some View {
         ScrollView {
@@ -136,7 +136,7 @@ struct StockList: View {
                             if index < stocks.count {
                                 let stock = stocks[index]
                                 StockPill(icon: stock.iconUrl,
-                                          ticker: stock.name,
+                                          ticker: stock.ticker,
                                           selectedStocks: $selectedStocks)
                             }
                         }
@@ -148,7 +148,7 @@ struct StockList: View {
 }
 
 struct SelectedStocksSheet: View {
-    let selectedStocks: [Ticker]
+    let selectedStocks: [Stock]
     
     var body: some View {
         
@@ -188,7 +188,7 @@ struct SelectedStocksSheet: View {
                                     if index < selectedStocks.count {
                                         let stock = selectedStocks[index]
                                         StockPill(icon: stock.iconUrl,
-                                                  ticker: stock.name,
+                                                  ticker: stock.ticker,
                                                   selectedStocks: .constant([]))
                                     }
                                 }
