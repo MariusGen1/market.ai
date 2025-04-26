@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct OnboardInfo: View {
-    @State private var selectedTab: Int = 0
-    @FocusState private var isInputActive: Bool
+struct MainInfo: View {
+    
+    @Binding var selectedTab: Int
 
     var body: some View {
         NavigationView {
@@ -31,16 +31,22 @@ struct OnboardInfo: View {
                     }
 
                     Spacer()
-
-                    // You can add an image or illustration here if you want:
-                    // Image("onboard-illustration")
-                    //    .resizable()
-                    //    .scaledToFit()
+                    
+                    HStack {
+                        Spacer()
+                        Image("Logo")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 300, height: 300)
+                            .cornerRadius(12)
+                            .padding(.bottom, 20)
+                        Spacer()
+                    }
+                    
+                    Spacer()
 
                     Button(action: {
-                        withAnimation {
-                            selectedTab += 1
-                        }
+                        selectedTab += 1
                     }) {
                         Text("Continue")
                             .font(.system(size: 18, weight: .medium))
@@ -58,9 +64,7 @@ struct OnboardInfo: View {
                 ToolbarItem(placement: .navigationBarLeading) {
                     if selectedTab > 0 {
                         Button(action: {
-                            withAnimation {
-                                selectedTab -= 1
-                            }
+                            selectedTab -= 1
                         }) {
                             HStack {
                                 Image(systemName: "chevron.left")
@@ -79,19 +83,3 @@ struct OnboardInfo: View {
     }
 }
 
-struct NextOnboardingScreen: View {
-    var body: some View {
-        ZStack {
-            Color.black
-                .ignoresSafeArea()
-
-            Text("Next Onboarding Page Here!")
-                .font(.largeTitle)
-                .foregroundColor(.white)
-        }
-    }
-}
-
-#Preview {
-    OnboardInfo()
-}

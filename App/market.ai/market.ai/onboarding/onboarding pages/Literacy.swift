@@ -2,7 +2,7 @@ import SwiftUI
 
 struct OnboardLiteracy: View {
     
-    @State var selectedTab: Int = 0
+    @Binding var selectedTab: Int
     @State private var selection: String? = nil
 
     let options = [
@@ -57,9 +57,7 @@ struct OnboardLiteracy: View {
                 }
                 
                 Button(action: {
-                    withAnimation {
-                        selectedTab += 1
-                    }
+                    selectedTab += 1
                 }) {
                     Text("Continue")
                         .font(.system(size: 18, weight: .medium))
@@ -73,9 +71,23 @@ struct OnboardLiteracy: View {
             }
             .padding()
         }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    selectedTab -= 1
+                } label: {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 10, height: 10)
+                            .foregroundStyle(Color("purpleLight"))
+                        Text("Back")
+                            .foregroundStyle(Color("purpleLight"))
+                            .font(.system(size: 17, weight: .medium, design: .default))
+                    }
+                }
+            }
+        }
     }
-}
-
-#Preview {
-    OnboardLiteracy()
 }

@@ -2,10 +2,11 @@ import SwiftUI
 
 struct OnboardStocks: View {
 
+    @Binding var selectedTab: Int
+    
     @State private var stocks: [Ticker] = []
     @State private var selectedStocks: [Ticker] = []
     
-    @State private var selectedTab: Int = 0
     @State private var searchText: String = ""
     @State private var showSelections: Bool = false
 
@@ -24,11 +25,17 @@ struct OnboardStocks: View {
                         Button {
                             showSelections.toggle()
                         } label: {
-                            Text("Selections")
-                                .font(.system(size: 15))
-                                .foregroundStyle(selectedStocks.isEmpty ? .gray : .white)
+                            if !selectedStocks.isEmpty {
+                                HStack(spacing: 10) {
+                                    Image(systemName: "arrow.down.left.and.arrow.up.right")
+                                        .foregroundStyle(Color("purpleLight"))
+                                    Text("\(selectedStocks.count)")
+                                        .fontWeight(.bold)
+                                        .foregroundStyle(Color("purpleLight"))
+                                        .padding(.trailing)
+                                }
+                            }
                         }
-                        .disabled(selectedStocks.isEmpty)
                     }
                     Text("Select the stocks that match your portfolio. Marketplace will tailor your daily updates to these selections.")
                         .font(.system(size: 17))
@@ -37,17 +44,19 @@ struct OnboardStocks: View {
                 
                 HStack {
                     Image(systemName: "magnifyingglass").foregroundStyle(.gray)
-                    TextField("", text: $searchText, prompt: Text("Search stocks...").foregroundStyle(.white))
+                    TextField("", text: $searchText, prompt: Text("Search stocks...").foregroundStyle(.gray))
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
                 }
                 .padding()
                 .background(.gray.opacity(0.20))
+                .foregroundStyle(.white)
                 .cornerRadius(12)
                 .padding(.bottom, 10)
                 
+                
                 StockList(
-                    stocks: stocks,
+                    stocks: stocks.isEmpty ? top50Tickers : stocks,
                     searchText: $searchText,
                     selectedStocks: $selectedStocks
                 )
@@ -55,9 +64,7 @@ struct OnboardStocks: View {
                 Spacer()
                 
                 Button(action: {
-                    withAnimation {
-                        selectedTab += 1
-                    }
+                    selectedTab += 1
                 }) {
                     Text("Continue")
                         .font(.system(size: 18, weight: .medium))
@@ -70,19 +77,44 @@ struct OnboardStocks: View {
             }
             .padding()
         }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    selectedTab -= 1
+                } label: {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 10, height: 10)
+                            .foregroundStyle(Color("purpleLight"))
+                        Text("Back")
+                            .foregroundStyle(Color("purpleLight"))
+                            .font(.system(size: 17, weight: .medium, design: .default))
+                    }
+                }
+            }
+        }
         .sheet(isPresented: $showSelections) {
             SelectedStocksSheet(selectedStocks: selectedStocks)
                 .presentationDetents([.fraction(0.50)])
         }
         .onChange(of: searchText) { _, newTerm in
-            fetchTickers(for: newTerm, apiKey: "Nr5wXB7hsyVNN_M4sLiakJdIIexXy61j") { result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let fetched):
-                        stocks = fetched
-                    case .failure:
-                        stocks = []
-                    }
+            guard !newTerm.isEmpty else {
+                self.stocks = []
+                return
+            }
+            
+            let stockSearcher = StockSearcher()
+            stockSearcher.searchStocks(for: newTerm) { result in
+                if newTerm != searchText { return }
+                
+                switch result {
+                case .success(let stocks):
+                    self.stocks = stocks
+                    print(stocks)
+                case .failure(let error):
+                    print("Error: \(error.localizedDescription)")
                 }
             }
         }
@@ -97,31 +129,17 @@ struct StockList: View {
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 25) {
-                ForEach(Array(stride(from: 0, to: stocks.count, by: 5)), id: \.self) { start in
-                    let end = min(start + 5, stocks.count)
-                    let block = Array(stocks[start..<end])
-                    
+                ForEach(0..<Int(ceil(Double(stocks.count) / 3.0)), id: \.self) { rowIndex in
                     HStack(spacing: 20) {
-                        ForEach(block.prefix(3), id: \.symbol) { stock in
-                            StockView(icon: stock.iconUrl,
-                                      ticker: stock.symbol,
-                                      selectedStocks: $selectedStocks)
-                                .id(stock.symbol)
-                        }
-                    }
-                    
-                    if block.count > 3 {
-                        HStack(spacing: 20) {
-                            Spacer()
-                            ForEach(block.dropFirst(3), id: \.symbol) { stock in
+                        ForEach(0..<3, id: \.self) { columnIndex in
+                            let index = rowIndex * 3 + columnIndex
+                            if index < stocks.count {
+                                let stock = stocks[index]
                                 StockView(icon: stock.iconUrl,
-                                          ticker: stock.symbol,
+                                          ticker: stock.name,
                                           selectedStocks: $selectedStocks)
-                                    .id(stock.symbol)
                             }
-                            Spacer()
                         }
-                        .padding(.horizontal, 10)
                     }
                 }
             }
@@ -133,8 +151,9 @@ struct SelectedStocksSheet: View {
     let selectedStocks: [Ticker]
     
     var body: some View {
-        VStack {
-            // grabber
+        
+        VStack(alignment: .leading) {
+
             HStack {
                 Spacer()
                 Rectangle()
@@ -145,7 +164,6 @@ struct SelectedStocksSheet: View {
             }
             .padding(.bottom, 10)
             
-            // title
             HStack {
                 Text("Selected Stocks")
                     .font(.system(size: 22, weight: .bold))
@@ -154,7 +172,6 @@ struct SelectedStocksSheet: View {
             }
             .padding(.bottom, 10)
             
-            // empty state
             if selectedStocks.isEmpty {
                 Spacer()
                 Text("You haven't selected any stocks yet.")
@@ -162,56 +179,27 @@ struct SelectedStocksSheet: View {
                     .font(.system(size: 16))
                 Spacer()
             } else {
-                // list of picks
                 ScrollView {
-                    LazyVStack(spacing: 16) {
-                        ForEach(selectedStocks, id: \.symbol) { stock in
-                            HStack(spacing: 12) {
-                                AsyncImage(url: stock.iconUrl) { phase in
-                                    switch phase {
-                                    case .empty:
-                                        ProgressView().frame(width: 27, height: 27)
-                                    case .success(let img):
-                                        img.resizable()
-                                           .aspectRatio(contentMode: .fill)
-                                           .frame(width: 27, height: 27)
-                                           .clipShape(RoundedRectangle(cornerRadius: 8))
-                                    case .failure:
-                                        Image(systemName: "photo")
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fit)
-                                            .frame(width: 27, height: 27)
-                                            .foregroundColor(.gray)
-                                    @unknown default:
-                                        EmptyView()
+                    LazyVStack(spacing: 25) {
+                        ForEach(0..<Int(ceil(Double(selectedStocks.count) / 3.0)), id: \.self) { rowIndex in
+                            HStack(spacing: 20) {
+                                ForEach(0..<3, id: \.self) { columnIndex in
+                                    let index = rowIndex * 3 + columnIndex
+                                    if index < selectedStocks.count {
+                                        let stock = selectedStocks[index]
+                                        StockView(icon: stock.iconUrl,
+                                                  ticker: stock.name,
+                                                  selectedStocks: .constant([]))
                                     }
                                 }
-                                
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(stock.symbol)
-                                        .font(.system(size: 16, weight: .bold))
-                                        .foregroundColor(.white)
-                                    Text(stock.name)
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.gray)
-                                }
-                                Spacer()
                             }
                         }
                     }
-                    .padding(.top, 16)
-                    .padding(.horizontal)
                 }
             }
         }
         .padding()
         .background(Color("bgNavy"))
         .ignoresSafeArea()
-    }
-}
-
-struct OnboardStocks_Previews: PreviewProvider {
-    static var previews: some View {
-        OnboardStocks()
     }
 }

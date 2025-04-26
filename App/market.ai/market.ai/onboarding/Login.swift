@@ -19,9 +19,23 @@ struct Login: View {
         VStack {
             Spacer()
             
-            Text("market.ai")
-                .font(.title)
-                .foregroundStyle(.white)
+            VStack {
+                
+                HStack {
+                    Spacer()
+                    Image("Logo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 300, height: 300)
+                        .cornerRadius(12)
+                        .padding(.bottom, 20)
+                    Spacer()
+                }
+                
+                Text("market.ai")
+                    .font(.title)
+                    .foregroundStyle(.white)
+            }
             
             Spacer()
             

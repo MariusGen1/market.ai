@@ -7,28 +7,27 @@ struct StockView: View {
     
     @Binding var selectedStocks: [Ticker]
     
-    var isSelected: Bool {
-        selectedStocks.contains(where: { $0.name == ticker })
-    }
+    var isSelected: Bool { selectedStocks.contains(where: { $0.name == ticker })}
     
     var body: some View {
         HStack(spacing: 0) {
-            let url = icon
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .empty:
-                    EmptyView()
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 27, height: 27)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .padding(.trailing, 10)
-                case .failure(_):
-                    EmptyView()
-                @unknown default:
-                    EmptyView()
+            if let url = URL(string: "\(icon)?apiKey=Nr5wXB7hsyVNN_M4sLiakJdIIexXy61j") {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .empty:
+                        EmptyView()
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 27, height: 27)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .padding(.trailing, 10)
+                    case .failure(_):
+                        EmptyView()
+                    @unknown default:
+                        EmptyView()
+                    }
                 }
             }
             
@@ -45,7 +44,6 @@ struct StockView: View {
             } else {
                 selectedStocks.append(
                     Ticker(
-                        symbol: ticker,
                         name: ticker,
                         iconUrl: icon,
                         marketCap: 0
