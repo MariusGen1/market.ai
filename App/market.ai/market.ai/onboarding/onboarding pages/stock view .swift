@@ -1,11 +1,16 @@
 import SwiftUI
 
 struct StockView: View {
+    let domain: String
+    let ticker: String
     
-    @State var domain: String
-    @State var ticker: String
+    @Binding var selectedStocks: [Ticker]
     
     var logoURL: URL? { URL(string: "https://logo.clearbit.com/\(domain)") }
+    
+    var isSelected: Bool {
+        selectedStocks.contains(where: { $0.name == ticker })
+    }
     
     var body: some View {
         HStack(spacing: 10) {
@@ -38,7 +43,21 @@ struct StockView: View {
                 .font(.system(size: 12, weight: .bold))
         }
         .padding(12)
-        .background(Color.gray.opacity(0.20))
+        .background(isSelected ? Color.green.opacity(0.8) : Color.gray.opacity(0.2))
         .cornerRadius(30)
+        .onTapGesture {
+            if let index = selectedStocks.firstIndex(where: { $0.name == ticker }) {
+                selectedStocks.remove(at: index)
+            } else {
+                selectedStocks.append(
+                    Ticker(
+                        symbol: ticker,
+                        name: ticker,
+                        iconUrl: URL(string: "https://logo.clearbit.com/\(domain)")!,
+                        marketCap: 0
+                    )
+                )
+            }
+        }
     }
 }
