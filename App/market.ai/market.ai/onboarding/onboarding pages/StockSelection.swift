@@ -135,7 +135,7 @@ struct StockList: View {
                             let index = rowIndex * 3 + columnIndex
                             if index < stocks.count {
                                 let stock = stocks[index]
-                                StockView(icon: stock.iconUrl,
+                                StockPill(icon: stock.iconUrl,
                                           ticker: stock.name,
                                           selectedStocks: $selectedStocks)
                             }
@@ -187,7 +187,7 @@ struct SelectedStocksSheet: View {
                                     let index = rowIndex * 3 + columnIndex
                                     if index < selectedStocks.count {
                                         let stock = selectedStocks[index]
-                                        StockView(icon: stock.iconUrl,
+                                        StockPill(icon: stock.iconUrl,
                                                   ticker: stock.name,
                                                   selectedStocks: .constant([]))
                                     }

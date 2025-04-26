@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct StockView: View {
+struct StockPill: View {
     
     let icon: URL
     let ticker: String
@@ -53,3 +53,46 @@ struct StockView: View {
         }
     }
 }
+
+
+struct StockPillFYP: View {
+    let icon: URL
+    let ticker: String
+    var isSelected: Bool
+    var onTap: (() -> Void)? = nil
+
+    var body: some View {
+        HStack(spacing: 0) {
+            if let url = URL(string: "\(icon)?apiKey=Nr5wXB7hsyVNN_M4sLiakJdIIexXy61j") {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .empty:
+                        EmptyView()
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 25, height: 25)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .padding(.trailing, 10)
+                    case .failure:
+                        EmptyView()
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+            }
+
+            Text(ticker)
+                .foregroundColor(.white)
+                .font(.system(size: 13, weight: .bold))
+        }
+        .padding(13)
+        .background(isSelected ? Color.gray.opacity(0.6) : Color.gray.opacity(0.2))
+        .cornerRadius(20)
+        .onTapGesture {
+            onTap?()
+        }
+    }
+}
+
