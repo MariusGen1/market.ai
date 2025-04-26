@@ -60,10 +60,20 @@ struct Stock: Identifiable, Codable {
 }
 
 
-enum FinancialLiteracyLevel: Int {
-    case low = 1
-    case medium = 2
-    case high = 3
+enum FinancialLiteracyLevel: Int, CaseIterable {
+    case beginner = 1
+    case casual = 2
+    case active = 3
+    case expert = 4
+    
+    var name: String {
+        switch self {
+        case .beginner: return "Beginner"
+        case .casual: return "Casual Investor"
+        case .active: return "Active Trader"
+        case .expert: return "Expert"
+        }
+    }
 }
 
 struct Article: Decodable {

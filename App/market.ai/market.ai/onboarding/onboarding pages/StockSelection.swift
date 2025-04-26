@@ -1,8 +1,7 @@
 import SwiftUI
 
 struct OnboardStocks: View {
-
-    @Binding var selectedTab: Int
+    @Environment(\.navigationController) var navigationController
     
     @State private var stocks: [Stock] = []
     @State private var selectedStocks: [Stock] = []
@@ -64,7 +63,13 @@ struct OnboardStocks: View {
                 Spacer()
                 
                 Button(action: {
-                    selectedTab += 1
+                    Task {
+                        do {
+                            guard case .onboardStocks(let user, let financialLiteracyLevel) = navigationController.screen else { fatalError() }
+                            try await UserService.createUser(uid: user.uid, financialLiteracyLevel: financialLiteracyLevel, stocks: stocks)
+                            navigationController.screen = .home(user: user)
+                        } catch { print(error) }
+                    }
                 }) {
                     Text("Continue")
                         .font(.system(size: 18, weight: .medium))
@@ -80,7 +85,8 @@ struct OnboardStocks: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    selectedTab -= 1
+                    guard case .onboardStocks(let user, _) = navigationController.screen else { fatalError() }
+                    navigationController.screen = .onboardLiteracy(user: user)
                 } label: {
                     HStack {
                         Image(systemName: "chevron.left")

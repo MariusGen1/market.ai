@@ -1,19 +1,10 @@
 import SwiftUI
 
 struct OnboardLiteracy: View {
-    
-    @Binding var selectedTab: Int
-    @State private var selection: String? = nil
-
-    let options = [
-        "Beginner",
-        "Casual Investor",
-        "Active Trader",
-        "Expert"
-    ]
+    @Environment(\.navigationController) var navigationController
+    @State private var selection: FinancialLiteracyLevel? = nil
 
     var body: some View {
-        
         ZStack {
             Color("bgNavy")
                 .ignoresSafeArea()
@@ -35,11 +26,11 @@ struct OnboardLiteracy: View {
                 Spacer()
                 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
-                    ForEach(options, id: \.self) { option in
+                    ForEach(FinancialLiteracyLevel.allCases.sorted(by: { $0.rawValue < $1.rawValue }), id: \.rawValue) { option in
                         Button(action: {
                             selection = option
                         }) {
-                            Text(option)
+                            Text(option.name)
                                 .font(.system(size: 16, weight: .medium))
                                 .frame(maxWidth: .infinity)
                                 .padding()
@@ -57,7 +48,9 @@ struct OnboardLiteracy: View {
                 }
                 
                 Button(action: {
-                    selectedTab += 1
+                    guard let selection else { return }
+                    guard case .onboardLiteracy(let user) = navigationController.screen else { fatalError() }
+                    navigationController.screen = .onboardStocks(user: user, financialLiteracyLevel: selection)
                 }) {
                     Text("Continue")
                         .font(.system(size: 18, weight: .medium))
@@ -74,7 +67,8 @@ struct OnboardLiteracy: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    selectedTab -= 1
+                    guard case .onboardLiteracy(let user) = navigationController.screen else { fatalError() }
+                    navigationController.screen = .landing(user: user)
                 } label: {
                     HStack {
                         Image(systemName: "chevron.left")

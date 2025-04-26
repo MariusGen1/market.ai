@@ -11,16 +11,11 @@ import GoogleSignIn
 import FirebaseCore
 
 struct Login: View {
-    
-    @State var isSignedIn: Bool = false
-    
     var body: some View {
-        
         VStack {
             Spacer()
             
             VStack {
-                
                 HStack {
                     Spacer()
                     Image("Logo")
@@ -39,7 +34,7 @@ struct Login: View {
             
             Spacer()
             
-            GoogleSignInButton(isSignedIn: $isSignedIn)
+            GoogleSignInButton()
         }
         .background(Color("bgNavy"))
     }
@@ -47,12 +42,10 @@ struct Login: View {
 
 
 struct GoogleSignInButton: View {
-    
-    @Binding var isSignedIn: Bool
+    @Environment(\.navigationController) var navigationController
     
     var body: some View {
         Button(action: {
-            
             guard let clientID = FirebaseApp.app()?.options.clientID else { return }
             let config = GIDConfiguration(clientID: clientID)
             GIDSignIn.sharedInstance.configuration = config
@@ -70,8 +63,11 @@ struct GoogleSignInButton: View {
                 Auth.auth().signIn(with: credential) { authResult, error in
                     guard error == nil else { return }
                     
-                    if let user = Auth.auth().currentUser { isSignedIn = true }
-                    else { isSignedIn = false }
+                    if let user = Auth.auth().currentUser {
+                        navigationController.screen = .onboardLiteracy(user: user)
+                    } else {
+                        print("Something went wrong :(")
+                    }
                 }
             }
         }) {

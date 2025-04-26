@@ -6,10 +6,11 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 struct MainInfo: View {
-    
-    @Binding var selectedTab: Int
+    @Environment(\.navigationController) var navigationController
+    @Environment(\.user) var user
 
     var body: some View {
         NavigationView {
@@ -19,11 +20,11 @@ struct MainInfo: View {
 
                 VStack(alignment: .leading, spacing: 30) {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Hey Marius!")
+                        Text("Hey \(user!.displayName!.split(separator: " ")[0])!")
                             .font(.system(size: 28, weight: .bold))
                             .foregroundColor(.white)
 
-                        Text("Welcome to Marketplace.Ai! Stay ahead with specifically curated news that matters to your stocks, your portfolio, and your next big moves.")
+                        Text("Welcome to market.ai! Stay ahead with specifically curated news that matters to your stocks, your portfolio, and your next big moves.")
                             .font(.system(size: 17, weight: .regular))
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.leading)
@@ -46,7 +47,7 @@ struct MainInfo: View {
                     Spacer()
 
                     Button(action: {
-                        selectedTab += 1
+                        navigationController.screen = .login
                     }) {
                         Text("Continue")
                             .font(.system(size: 18, weight: .medium))
@@ -60,25 +61,6 @@ struct MainInfo: View {
                 }
                 .padding()
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    if selectedTab > 0 {
-                        Button(action: {
-                            selectedTab -= 1
-                        }) {
-                            HStack {
-                                Image(systemName: "chevron.left")
-                                    .resizable()
-                                    .frame(width: 10, height: 16)
-                                Text("Back")
-                            }
-                            .foregroundColor(Color("purpleLight"))
-                            .font(.system(size: 17, weight: .medium))
-                        }
-                    }
-                }
-            }
-            .navigationBarBackButtonHidden(true)
         }
     }
 }
