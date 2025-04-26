@@ -1,0 +1,16 @@
+DROP DATABASE IF EXISTS market_ai_db;
+CREATE DATABASE market_ai_db;
+USE market_ai_db;
+
+CREATE TABLE users (
+    uid PRIMARY KEY VARCHAR(255),
+    email VARCHAR(255) NOT NULL UNIQUE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    firstname VARCHAR(100) NOT NULL,
+    lastname VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE portfolio_contents (
+    portfolio_contents_id INT PRIMARY KEY AUTO_INCREMENT,
+    uid VARCHAR(255) NOT NULL REFERENCES users(uid) ON DELETE CASCADE
+);

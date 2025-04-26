@@ -1,0 +1,13 @@
+.DS_Store
+*.key
+bruindining-1-firebase-adminsdk-nqcnu-c1695dbd58.json
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+/*.gcno
+**/xcshareddata/WorkspaceSettings.xcsettings
+xcuserdata/
+*.pem
+*.env
