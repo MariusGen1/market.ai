@@ -12,3 +12,4 @@ xcuserdata/
 *.pem
 *.env
 **/node_modules/**
+.env.development
