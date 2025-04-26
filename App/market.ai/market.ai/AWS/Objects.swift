@@ -5,45 +5,60 @@
 //  Created by Marius Genton on 4/25/25.
 //
 
-import Foundation
+import SwiftUI
 
-struct Stock: Decodable, Encodable {
-    
+struct Stock: Identifiable, Codable {
+    var id: String { ticker }
+
     let name: String
     let ticker: String
     let marketCap: Int
     let iconUrl: URL?
-    
+
+    /// in-memory only, excluded from `CodingKeys`
+    var hardcodedImage: Image?
+
     enum CodingKeys: String, CodingKey {
-        case name
-        case ticker
+        case name, ticker
         case marketCap = "market_cap"
-        case iconUrl = "icon_url"
+        case iconUrl   = "icon_url"
     }
-    
-    init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        name = try container.decode(String.self, forKey: .name)
-        ticker = try container.decode(String.self, forKey: .ticker)
-        marketCap = try container.decode(Int.self, forKey: .marketCap)
-        iconUrl = try container.decode(URL?.self, forKey: .iconUrl)
+
+    // 1) Decode only the JSON fields; always default image to nil
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        name      = try c.decode(String.self, forKey: .name)
+        ticker    = try c.decode(String.self, forKey: .ticker)
+        marketCap = try c.decode(Int.self,    forKey: .marketCap)
+        iconUrl   = try c.decode(URL?.self,   forKey: .iconUrl)
+        hardcodedImage = nil
     }
-    
-    func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(name, forKey: .name)
-        try container.encode(ticker, forKey: .ticker)
-        try container.encode(marketCap, forKey: .marketCap)
-        try container.encodeIfPresent(iconUrl, forKey: .iconUrl)
+
+    // 2) Encode only JSON fields
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(name,      forKey: .name)
+        try c.encode(ticker,    forKey: .ticker)
+        try c.encode(marketCap, forKey: .marketCap)
+        try c.encodeIfPresent(iconUrl, forKey: .iconUrl)
     }
-    
-    init(name: String, ticker: String, marketCap: Int, iconUrl: URL?) {
-        self.name = name
-        self.ticker = ticker
-        self.marketCap = marketCap
-        self.iconUrl = iconUrl
+
+    // 3) Your “memberwise” init, now with the extra Image? parameter
+    init(
+      name: String,
+      ticker: String,
+      marketCap: Int,
+      iconUrl: URL?,
+      hardcodedImage: Image? = nil   // <— defaulted to nil
+    ) {
+        self.name            = name
+        self.ticker          = ticker
+        self.marketCap       = marketCap
+        self.iconUrl         = iconUrl
+        self.hardcodedImage  = hardcodedImage
     }
 }
+
 
 enum FinancialLiteracyLevel: Int {
     case low = 1
