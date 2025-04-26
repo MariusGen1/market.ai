@@ -51,7 +51,10 @@ struct GoogleSignInButton: View {
             GIDSignIn.sharedInstance.configuration = config
             
             GIDSignIn.sharedInstance.signIn(withPresenting: getRootViewController()) { result, error in
-                guard error == nil else { return }
+                if let error {
+                    print(error)
+                    return
+                }
                 
                 guard let user = result?.user,
                       let idToken = user.idToken?.tokenString

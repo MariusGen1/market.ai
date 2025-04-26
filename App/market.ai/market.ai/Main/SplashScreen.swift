@@ -17,6 +17,7 @@ struct SplashScreen: View {
             return
         }
         
+        RequestHelper.configure(for: currentUser)
         navigationController.screen = .home(user: currentUser)
     }
     

@@ -4,18 +4,29 @@ struct FYP: View {
     @State private var greeting = ""
     @State private var selectedStock: Stock? = nil
     
-    @State private var portfolio: [Stock] = [
-        Stock(name: "Apple", ticker: "AAPL", marketCap: 3872409585350, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/YXBwbGUuY29t/images/2025-04-04_icon.png")!),
-        Stock(name: "Microsoft", ticker: "MSFT", marketCap: 3133802247084, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/bWljcm9zb2Z0LmNvbQ/images/2025-04-04_icon.png")!),
-        Stock(name: "Alphabet", ticker: "GOOGL", marketCap: 1876556400000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/YWxwaGFiZXQuY29t/images/2025-04-04_icon.png")!),
-        Stock(name: "Amazon", ticker: "AMZN", marketCap: 2005630000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/YW1hem9uLmNvbQ/images/2025-04-04_icon.png")!),
-        Stock(name: "NVIDIA", ticker: "NVDA", marketCap: 2708640000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/bnZpZGlhLmNvbQ/images/2025-04-04_icon.png")!),
-        Stock(name: "Berkshire Hathaway", ticker: "BRK.B", marketCap: 1145090000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/YmVya3NoaXJlLmNvbQ/images/2025-04-04_icon.png")!),
-        Stock(name: "Tesla", ticker: "TSLA", marketCap: 917810000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/dGVzbGEuY29t/images/2025-04-04_icon.png")!),
-        Stock(name: "Meta Platforms", ticker: "META", marketCap: 1448168302087, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/bWV0YS5jb20/images/2025-04-04_icon.png")!),
-        Stock(name: "UnitedHealth Group", ticker: "UNH", marketCap: 418640000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/dW5pdGVkaGVhbHRoZ3JvdXAuY29t/images/2025-04-04_icon.png")!),
-        Stock(name: "Johnson & Johnson", ticker: "JNJ", marketCap: 154580000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/am5qLmNvbQ/images/2025-04-04_icon.png")!),
-    ]
+    @State private var portfolio: [Stock]? = nil
+    @State private var feed: [Article]? = nil
+    
+    private func loadData() async {
+        do {
+            portfolio = try await UserService.getPortfolio()
+            feed = try await NewsService.getArticles()
+            print(feed)
+        } catch { print(error) }
+    }
+    
+//    @State private var portfolio: [Stock] = [
+//        Stock(name: "Apple", ticker: "AAPL", marketCap: 3872409585350, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/YXBwbGUuY29t/images/2025-04-04_icon.png")!),
+//        Stock(name: "Microsoft", ticker: "MSFT", marketCap: 3133802247084, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/bWljcm9zb2Z0LmNvbQ/images/2025-04-04_icon.png")!),
+//        Stock(name: "Alphabet", ticker: "GOOGL", marketCap: 1876556400000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/YWxwaGFiZXQuY29t/images/2025-04-04_icon.png")!),
+//        Stock(name: "Amazon", ticker: "AMZN", marketCap: 2005630000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/YW1hem9uLmNvbQ/images/2025-04-04_icon.png")!),
+//        Stock(name: "NVIDIA", ticker: "NVDA", marketCap: 2708640000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/bnZpZGlhLmNvbQ/images/2025-04-04_icon.png")!),
+//        Stock(name: "Berkshire Hathaway", ticker: "BRK.B", marketCap: 1145090000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/YmVya3NoaXJlLmNvbQ/images/2025-04-04_icon.png")!),
+//        Stock(name: "Tesla", ticker: "TSLA", marketCap: 917810000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/dGVzbGEuY29t/images/2025-04-04_icon.png")!),
+//        Stock(name: "Meta Platforms", ticker: "META", marketCap: 1448168302087, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/bWV0YS5jb20/images/2025-04-04_icon.png")!),
+//        Stock(name: "UnitedHealth Group", ticker: "UNH", marketCap: 418640000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/dW5pdGVkaGVhbHRoZ3JvdXAuY29t/images/2025-04-04_icon.png")!),
+//        Stock(name: "Johnson & Johnson", ticker: "JNJ", marketCap: 154580000000, iconUrl: URL(string: "https://api.polygon.io/v1/reference/company-branding/am5qLmNvbQ/images/2025-04-04_icon.png")!),
+//    ]
 
     var body: some View {
         ZStack {
@@ -81,6 +92,7 @@ struct FYP: View {
             selectedStock = portfolio[0]
             setGreeting()
         }
+        .task { await loadData() }
     }
 
     private func setGreeting() {

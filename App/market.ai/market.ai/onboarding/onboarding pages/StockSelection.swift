@@ -67,6 +67,7 @@ struct OnboardStocks: View {
                         do {
                             guard case .onboardStocks(let user, let financialLiteracyLevel) = navigationController.screen else { fatalError() }
                             try await UserService.createUser(uid: user.uid, financialLiteracyLevel: financialLiteracyLevel, stocks: stocks)
+                            RequestHelper.configure(for: user)
                             navigationController.screen = .home(user: user)
                         } catch { print(error) }
                     }

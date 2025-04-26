@@ -72,6 +72,8 @@ router.post('/fcmToken', async (req,res,next) => {
 
 router.get('/portfolio', async (req,res,next) => {
     try {
+        return res.status(200).send([]);
+
         const data = await db.do(`
         SELECT t.*
         FROM portfolio_contents pc

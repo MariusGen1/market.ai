@@ -58,8 +58,8 @@ struct FlowController: View {
                     .environment(\.user, user)
             case .onboardLiteracy(let user):
                 OnboardLiteracy()
-//                    .environment(\.user, user)
-            case .onboardStocks(let user, let financialLiteracyLevel):
+                    .environment(\.user, user)
+            case .onboardStocks(let user, _):
                 OnboardStocks()
                     .environment(\.user, user)
             case .home(let user):
