@@ -24,7 +24,8 @@ class StockSearcher {
                             return Stock(
                                 name: detail.name,
                                 ticker: "",
-                                marketCap: Int(marketCapDouble), iconUrl: iconUrl
+                                marketCap: Int(marketCapDouble),
+                                iconUrl: iconUrl
                             )
                         }
                         completion(.success(mapped))

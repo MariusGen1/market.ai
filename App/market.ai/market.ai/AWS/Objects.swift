@@ -49,7 +49,7 @@ struct Stock: Identifiable, Codable {
       ticker: String,
       marketCap: Int,
       iconUrl: URL?,
-      hardcodedImage: Image? = nil   // <— defaulted to nil
+      hardcodedImage: Image? = nil   
     ) {
         self.name            = name
         self.ticker          = ticker
@@ -58,6 +58,22 @@ struct Stock: Identifiable, Codable {
         self.hardcodedImage  = hardcodedImage
     }
 }
+
+extension Stock {
+  var iconUrlWithAPIKey: URL? {
+    guard let base = iconUrl,
+          var comps = URLComponents(url: base,
+                                   resolvingAgainstBaseURL: false)
+    else { return nil }
+
+    comps.queryItems = [
+      URLQueryItem(name: "apiKey",
+                   value: "Nr5wXB7hsyVNN_M4sLiakJdIIexXy61j")
+    ]
+    return comps.url
+  }
+}
+
 
 
 enum FinancialLiteracyLevel: Int {

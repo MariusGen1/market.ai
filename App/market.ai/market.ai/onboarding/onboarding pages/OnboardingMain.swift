@@ -9,7 +9,7 @@ import SwiftUI
 
 struct OnboardingMain: View {
     
-    @State var selectedTab: Int = 0
+    @State var selectedTab: Int = 2
     
     var body: some View {
         NavigationStack {
