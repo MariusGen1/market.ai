@@ -6,7 +6,7 @@ router.post('/createUser', async (req,res,next) => {
     const { uid, financial_literacy_level } = req.body;
 
     try {
-        await db.insert('INSERT INTO users (uid, literacy_level) VALUES (?,?)', [uid, literacy_level]);
+        await db.insert('INSERT INTO users (uid, financial_literacy_level) VALUES (?,?)', [uid, financial_literacy_level]);
         return res.status(200).send('Success');
 
     } catch(e) { next(e); }
