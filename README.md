@@ -1,6 +1,7 @@
 # market.ai
 
-<img width="750" alt="market-ai-thumbnail" src="https://github.com/user-attachments/assets/40e191ff-6981-4751-977d-a2261ea6bc6d" />
+![market-ai-thumbnail](https://github.com/user-attachments/assets/0c5293e9-7e72-44dd-860a-36790071bf8b)
+
 
 ## Inspiration
 All of our team members are interested in finance, to varying degrees. After some brainstorming, we quickly found an issue that we all saw value in solving: democratizing access to high quality, relevant, financial news. We're solving three main problems:
