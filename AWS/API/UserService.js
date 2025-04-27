@@ -87,4 +87,29 @@ router.get('/portfolio', async (req,res,next) => {
     } catch(e) { next(e); }
 });
 
+router.get('/allUsers', async (req,res,next) => {
+    try {
+        const data = await db.do('SELECT uid FROM users');
+        return res.status(200).send(data);
+
+    } catch(e) { next(e); }
+});
+
+router.get('/userInfo', async (req,res,next) => {
+    const { uid } = req.query;
+
+    try {
+        const portfolio = await db.do('SELECT s.* FROM portfolio_contents pc INNER JOIN stocks s ON pc.stock_ticker = s.ticker WHERE pc.uid = ?', [uid]);
+        const financial_literacy_level = await db.getOne('SELECT financial_literacy_level FROM users WHERE uid = ?', [uid]);
+        const recent_articles = await db.do('SELECT * FROM articles WHERE uid = ? ORDER BY ts DESC LIMIT 20', [uid])
+        
+        return res.status(200).send({
+            'portfolio': portfolio,
+            'financial_literacy_level': financial_literacy_level,
+            'recent_articles': recent_articles
+        });
+
+    } catch(e) { next(e); }
+});
+
 module.exports = router;

@@ -9,6 +9,8 @@ CREATE TABLE users (
     agent_seed VARCHAR(255) NULL
 );
 
+INSERT INTO users (uid, financial_literacy_level) VALUES ("abcd", 2);
+
 CREATE TABLE stocks (
     ticker VARCHAR(255) PRIMARY KEY,
     name VARCHAR(100) NOT NULL,

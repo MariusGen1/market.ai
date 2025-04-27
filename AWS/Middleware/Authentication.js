@@ -5,7 +5,8 @@ const authentication = async (req, res, next) => {
     const exempted_routes = [
         '/createUser',
         '/articles',
-        '/portfolio'
+        '/portfolio',
+        '/allUsers'
     ];
 
     const endpoint = req.url.split('?')[0];
