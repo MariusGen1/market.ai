@@ -28,7 +28,9 @@ CREATE TABLE portfolio_contents (
 CREATE TABLE articles (
     article_id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(300) NOT NULL,
+    summary TEXT NOT NULL,
     body TEXT NOT NULL,
+    portfolio_impact TEXT NOT NULL,
     image_url VARCHAR(300) NOT NULL,
     sources VARCHAR(1500) NOT NULL,
     ts DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -67,4 +69,11 @@ INSERT INTO articles (
     'ABC News, "Tesla profits drop 71% amid anti-Musk backlash" (2025-04-22); CNBC, "Amazon and Nvidia say all options are on the table to power AI including fossil fuels" (2025-04-26)',
     5,
     'user123'
+);
+
+CREATE TABLE unformatted_articles (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    data JSON NOT NULL,
+    processed BOOLEAN NOT NULL DEFAULT 0,
+    ts DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

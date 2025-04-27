@@ -6,7 +6,9 @@ const authentication = async (req, res, next) => {
         '/createUser',
         '/articles',
         '/portfolio',
-        '/allUsers'
+        '/allUsers',
+        '/unformattedArticle',
+        '/unformattedArticles'
     ];
 
     const endpoint = req.url.split('?')[0];

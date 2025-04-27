@@ -13,8 +13,10 @@ const PORT = process.env.PORT;
 const router = express.Router();
 
 const userService = require('./API/UserService');
+const newsService = require('./API/NewsService');
 
 router.use(userService);
+router.use(newsService);
 
 app.use(express.json());
 app.use(rateLimiter);
