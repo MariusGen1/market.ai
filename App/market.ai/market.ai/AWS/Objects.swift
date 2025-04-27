@@ -96,6 +96,9 @@ struct Article: Decodable, Hashable {
     let sources: [URL]
     let ts: Date
     let importanceLevel: Int
+    let portfolioImpact: String
+    let summary: String
+    let articleId: Int
     
     enum CodingKeys: String, CodingKey {
         case title
@@ -104,6 +107,9 @@ struct Article: Decodable, Hashable {
         case sources
         case ts
         case importanceLevel = "importance_level"
+        case portfolioImpact = "portfolio_impact"
+        case summary
+        case articleId = "article_id"
     }
     
     init(from decoder: any Decoder) throws {
@@ -119,21 +125,36 @@ struct Article: Decodable, Hashable {
         ts = try rawTs.parseDBTimestamp()
         
         importanceLevel = try container.decode(Int.self, forKey: .importanceLevel)
+        
+        summary = try container.decode(String.self, forKey: .summary)
+        portfolioImpact = try container.decode(String.self, forKey: .portfolioImpact)
+        
+        articleId = try container.decode(Int.self, forKey: .articleId)
+    }
+}
+
+struct ChatMessage: Decodable, Identifiable {
+    let messageId: Int
+    let body: String
+    let isUserMessage: Bool
+    let ts: Date
+    var id: Int { messageId }
+    
+    enum CodingKeys: String, CodingKey {
+        case messageId = "message_id"
+        case body
+        case isUserMessage = "is_user_message"
+        case ts
     }
     
-    init(
-        title: String,
-        body: String,
-        imageUrl: URL,
-        sources: [URL],
-        ts: Date,
-        importanceLevel: Int
-    ) {
-        self.title = title
-        self.body = body
-        self.imageUrl = imageUrl
-        self.sources = sources
-        self.ts = ts
-        self.importanceLevel = importanceLevel
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        messageId = try container.decode(Int.self, forKey: .messageId)
+        body = try container.decode(String.self, forKey: .body)
+        
+        isUserMessage = (try container.decode(Int.self, forKey: .isUserMessage)) == 1
+        
+        let rawTs = try container.decode(String.self, forKey: .ts)
+        ts = try rawTs.parseDBTimestamp()
     }
 }

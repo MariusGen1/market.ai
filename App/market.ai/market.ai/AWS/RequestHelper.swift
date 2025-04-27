@@ -52,7 +52,7 @@ extension ServiceErr: LocalizedError {
 }
 
 public final class RequestHelper {
-    private var user: User!
+    private var user: User?
     
     static private let shared = RequestHelper()
     static private let base: String = "http://52.52.57.22:3000"
@@ -66,8 +66,11 @@ public final class RequestHelper {
     }
     
     static func get(_ endpoint: String, params: [String: Any], failSilently: Bool = false) async throws -> Data {
+        var allParams = params
+        allParams["uid"] = shared.user?.uid
+        
         guard
-            let paramsString = params
+            let paramsString = allParams
                 .map({ k, v in "\(k)=\(v)" })
                 .joined(separator: "&")
                 .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)?
@@ -75,8 +78,7 @@ public final class RequestHelper {
             let url = URL(string: base + endpoint + "?" + paramsString)
         else { throw ServiceErr.InvalidUrl }
         
-        var request = URLRequest(url: url)
-        try await request.authenticate(for: shared.user)
+        let request = URLRequest(url: url)
 
         do {
             let startTime = Date()
@@ -108,11 +110,14 @@ public final class RequestHelper {
     @discardableResult
     static func post(_ endpoint: String, body: [String: Any]) async throws -> Data {
         guard let url = URL(string: base + endpoint) else { throw ServiceErr.InvalidUrl }
-        let jsonData = try? JSONSerialization.data(withJSONObject: body)
+        
+        var authenticatedBody = body
+        if let uid = shared.user?.uid { authenticatedBody["uid"] = uid }
+        
+        let jsonData = try? JSONSerialization.data(withJSONObject: authenticatedBody)
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        try await request.authenticate(for: shared.user)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = jsonData
                 
@@ -138,17 +143,6 @@ public final class RequestHelper {
             print(error)
             throw error
         }
-    }
-}
-
-fileprivate extension URLRequest {
-    mutating func authenticate(for user: User) async throws {
-        let idToken = try await user.getIDTokenResult()
-
-        self.setValue(
-            "Bearer \(idToken.token)",
-            forHTTPHeaderField: "Authorization"
-        )
     }
 }
 

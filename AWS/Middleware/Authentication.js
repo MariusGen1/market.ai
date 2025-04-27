@@ -4,8 +4,6 @@ const logger = require("../logger");
 const authentication = async (req, res, next) => {
     const exempted_routes = [
         '/createUser',
-        '/articles',
-        '/portfolio',
         '/allUsers',
         '/unformattedArticle',
         '/unformattedArticles'
@@ -18,14 +16,14 @@ const authentication = async (req, res, next) => {
         return;
     }
 
+    console.log(req.query);
+
     let uid;
     if (req.method === 'GET') uid = req.query.uid;
     else if (req.method === 'POST') uid = req.body.uid;
     if (!uid) return res.status(403).send('Unauthenticated');
 
     req.user = { uid };
-
-    req.user.info = await db.getOne('SELECT * FROM users WHERE uid = ?', [uid]);
 
     next();
 };

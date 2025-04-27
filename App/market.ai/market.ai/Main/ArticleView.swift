@@ -1,26 +1,40 @@
 import SwiftUI
 
 struct ArticleView: View {
-    
     @Environment(\.dismiss) private var dismiss
     
-    @State private var chatMessages: [String] = []
+    @State private var chatMessages: [ChatMessage] = []
     @State private var userInput = ""
     
     @FocusState private var keyboardFocused: Bool
     
-    @State var article: Article
-
+    let article: Article
+    
+    private func getMessages() async {
+        do {
+            chatMessages = try await ChatService.getMessages(for: article.articleId)
+        } catch { print(error) }
+    }
+    
+    private func postMessage() async {
+        guard userInput.count > 0 else { return }
+        let tmp = userInput
+        userInput = ""
+        
+        do {
+            try await ChatService.postMessage(articleId: article.articleId, body: tmp)
+            await getMessages()
+        } catch { print(error) }
+    }
+    
     
     var body: some View {
         ZStack {
             Color("bgNavy").ignoresSafeArea()
             
             GeometryReader { geo in
-                
                 ScrollView(showsIndicators: false) {
                     VStack {
-                        
                         // image
                         AsyncImage(url: article.imageUrl) { phase in
                             switch phase {
@@ -42,47 +56,32 @@ struct ArticleView: View {
                         
                         
                         VStack(alignment: .leading, spacing: 25) {
-                            
                             HStack {
                                 Spacer()
                                 Text(article.title)
-                                    .font(.system(size: 25, weight: .bold))
-                                    .foregroundColor(.white)
                                     .multilineTextAlignment(.center)
+                                    .font(.system(size: 25, weight: .bold))
                                 Spacer()
                             }
                             
-                            Text(article.body)
-                                .font(.system(size: 16))
-                                .foregroundColor(.white.opacity(0.8))
-                                .fixedSize(horizontal: false, vertical: true)
-                                .padding()
-                                .background(Color.white.opacity(0.05))
-                                .cornerRadius(15)
+                            RoundedTextContainer(content: article.body)
                             
                             // Key Ideas
                             VStack(alignment: .leading, spacing: 15) {
-                                Text("Key Ideas")
+                                Text("Portfolio Impact")
                                     .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(.white)
-                                VStack(spacing: 12) {
-                                    excerptBox("“Investors are weighing the impact of new tariffs on long-term earnings.”")
-                                    excerptBox("“Some sectors like technology have bounced back quicker than others.”")
-                                    excerptBox("“Trade negotiations remain a key wildcard moving forward.”")
-                                }
+                                
+                                RoundedTextContainer(content: article.portfolioImpact)
                             }
                             
                             // Chat Assistant
                             VStack(alignment: .leading, spacing: 15) {
                                 Text("Ask about this article")
                                     .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(.white)
                                 
-                                ScrollView {
-                                    VStack(spacing: 12) {
-                                        ForEach(chatMessages, id: \.self) { msg in
-                                            chatBubble(message: msg)
-                                        }
+                                VStack(spacing: 12) {
+                                    ForEach(chatMessages) { msg in
+                                        chatBubble(message: msg)
                                     }
                                 }
                                 .frame(maxHeight: 200)
@@ -91,16 +90,13 @@ struct ArticleView: View {
                                 
                                 HStack {
                                     VStack(spacing: 12) {
-                                      TextField("", text: $userInput, prompt: Text("Ask anything").foregroundStyle(.gray))
-                                        .autocapitalization(.none)
-                                        .disableAutocorrection(true)
-                                        .padding()
+                                        TextField("", text: $userInput, prompt: Text("Ask anything").foregroundStyle(.gray))
+                                            .autocapitalization(.none)
+                                            .disableAutocorrection(true)
+                                            .padding()
                                     }
-
                                     
-                                    Button {
-//                                        sendMessage()
-                                    } label: {
+                                    Button { Task { await postMessage() } } label: {
                                         Image(systemName: "arrow.up.circle.fill")
                                             .resizable()
                                             .aspectRatio(contentMode: .fit)
@@ -115,8 +111,6 @@ struct ArticleView: View {
                                 .cornerRadius(20)
                                 .padding(.bottom, 10)
                             }
-                            
-                            
                             Spacer(minLength: 30)
                         }
                         .padding()
@@ -133,13 +127,18 @@ struct ArticleView: View {
                                 Text("Back")
                                     .bold()
                             }
-                            .padding()
-                            .background(Color("purpleLight"))
+                            .padding(10)
+                            .background(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 30))
-                            .padding()
+                            .padding(.vertical)
+                            .foregroundStyle(.black)
+                            .font(.footnote)
                         }
+                        .shadow(radius: 5)
                     }
                 }
+                .task { await getMessages() }
+                .foregroundStyle(.white)
             }
         }
     }
@@ -156,24 +155,32 @@ struct ArticleView: View {
             .cornerRadius(12)
     }
     
-    private func chatBubble(message: String) -> some View {
+    private func chatBubble(message: ChatMessage) -> some View {
         HStack {
-            Text(message)
+            if message.isUserMessage { Spacer() }
+            
+            Text(message.body)
                 .padding(10)
                 .background(Color.white.opacity(0.1))
                 .cornerRadius(10)
                 .foregroundColor(.white)
-            Spacer()
+            
+            if !message.isUserMessage { Spacer() }
         }
         .padding(.horizontal, 5)
     }
-//    
-//    private func sendMessage() {
-//        guard !userInput.isEmpty else { return }
-//        chatMessages.append(userInput)
-//        userInput = ""
-//    }
 }
 
-
-
+struct RoundedTextContainer: View {
+    let content: String
+    
+    var body: some View {
+        Text(content)
+            .font(.system(size: 16))
+            .foregroundColor(.white.opacity(0.8))
+            .fixedSize(horizontal: false, vertical: true)
+            .padding()
+            .background(Color.white.opacity(0.05))
+            .cornerRadius(15)
+    }
+}

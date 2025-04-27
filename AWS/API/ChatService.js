@@ -39,6 +39,8 @@ router.post('/articleMessage', async (req,res,next) => {
             "stream": false,
             "max_tokens": 1024
         };
+
+        console.log(process.env.ASI1_KEY);
         
         const response =await fetch("https://api.asi1.ai/v1/chat/completions", {
             method: "POST",

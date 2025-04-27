@@ -25,43 +25,39 @@ struct Home: View {
                     if let feed {
                         ScrollView {
                             VStack(alignment: .leading, spacing: 25) {
+                                HStack {
+                                    Text(greeting)
+                                        .font(.system(size: 28, weight: .bold))
+                                        .foregroundColor(.white)
+                                    Spacer()
+                                }
                                 
-                                VStack(spacing: 25) {
-                                    HStack {
-                                        Text(greeting)
-                                            .font(.system(size: 28, weight: .bold))
-                                            .foregroundColor(.white)
-                                        Spacer()
-                                    }
-                                    
-                                    Rectangle()
-                                        .fill(Color.gray.opacity(0.20))
-                                        .frame(height: 125)
-                                        .cornerRadius(15)
-                                    
-                                    // individual stocks
-                                    ScrollView(.horizontal, showsIndicators: false) {
-                                        HStack(spacing: 15) {
-                                            if let portfolio {
-                                                ForEach(portfolio, id: \.name) { stock in
-                                                    StockPillFYP(
-                                                        icon: stock.iconUrl!,
-                                                        ticker: stock.ticker,
-                                                        isSelected: selectedStock?.name == stock.name,
-                                                        onTap: {
-                                                            if selectedStock == stock {
-                                                                selectedStock = nil
-                                                            } else {
-                                                                selectedStock = stock
-                                                            }
+//                                    Rectangle()
+//                                        .fill(Color.gray.opacity(0.20))
+//                                        .frame(height: 125)
+//                                        .cornerRadius(15)
+                                
+                                // individual stocks
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 15) {
+                                        if let portfolio {
+                                            ForEach(portfolio, id: \.name) { stock in
+                                                StockPillFYP(
+                                                    icon: stock.iconUrl!,
+                                                    ticker: stock.ticker,
+                                                    isSelected: selectedStock?.name == stock.name,
+                                                    onTap: {
+                                                        if selectedStock == stock {
+                                                            selectedStock = nil
+                                                        } else {
+                                                            selectedStock = stock
                                                         }
-                                                    )
-                                                }
+                                                    }
+                                                )
                                             }
                                         }
                                     }
                                 }
-                                .padding()
                                 
                                 // specific stock news section
                                 if let selected = selectedStock {
@@ -78,8 +74,6 @@ struct Home: View {
                                                     .bold()
                                             }
                                         }
-                                        // filtered to the specific ticker
-                                        //                                BentoGrid(articles: $articles)
                                     }
                                     .padding()
                                 }

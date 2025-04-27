@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct TopBento: View {
-    
     let geo: GeometryProxy
     let article: Article
     
@@ -34,10 +33,11 @@ struct TopBento: View {
             HStack(alignment: .bottom) {
                 Text(article.title)
                     .foregroundColor(.white)
-                    .font(.system(size: 20, weight: .bold))
+                    .font(.system(size: 16, weight: .bold))
                     .lineLimit(2)
+                    .multilineTextAlignment(.leading)
                 Spacer()
-                Text("3h ago")
+                Text(article.ts.compactTimeSince() + " ago")
                     .foregroundColor(.gray)
                     .font(.system(size: 12, weight: .light))
             }
@@ -66,22 +66,22 @@ struct MiddleBento: View {
                     image
                         .resizable()
                         .scaledToFill()
-                        .frame(width: (geo.size.width / 2) - 24, height: 200)
-                        .clipped()
                 case .failure(_):
                     Color.gray
                 @unknown default:
                     Color.gray
                 }
             }
+            .frame(width: (geo.size.width / 2) - 24, height: 200)
+            .clipped()
             
             VStack(alignment: .leading, spacing: 10) {
                 Text(article.title)
                     .foregroundColor(.white)
-                    .font(.system(size: 20, weight: .bold))
+                    .font(.system(size: 16, weight: .bold))
                     .lineLimit(3)
                 
-                Text("3h ago")
+                Text(article.ts.compactTimeSince()  + " ago")
                     .foregroundColor(.gray)
                     .font(.system(size: 12, weight: .light))
             }
@@ -105,11 +105,11 @@ struct BottomBento: View {
             VStack(alignment: .leading, spacing: 12) {
                 Text(article.title)
                     .foregroundColor(.white)
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.system(size: 16, weight: .bold))
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
                 
-                Text("3h ago")
+                Text(article.ts.compactTimeSince() + " ago")
                     .font(.caption)
                     .foregroundColor(.gray)
             }
@@ -129,8 +129,14 @@ struct BottomBento: View {
                         .clipped()
                 case .failure(_):
                     Color.gray
+                        .frame(width: 60, height: 60)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .clipped()
                 @unknown default:
                     Color.gray
+                        .frame(width: 60, height: 60)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .clipped()
                 }
             }
         }
@@ -166,3 +172,31 @@ extension View {
     }
 }
 
+
+extension Date {
+    func compactTimeSince() -> String {
+        let diff = Date().timeIntervalSince(self)
+        
+        if diff < 10 {
+            return "Just now"
+        } else if diff < 60 {
+            return "\(Int(diff))s"
+        } else if diff < 3600 {
+            let min = Int(diff / 60)
+            return "\(min)m"
+        } else if diff < 24 * 3600 {
+            let hrs = Int(diff / 3600)
+            return "\(hrs)h"
+        } else {
+            let days = Int(diff / (3600 * 24))
+            
+            if days <= 7 {
+                return "\(days)d"
+            } else {
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "MMM dd"
+                return dateFormatter.string(from: self)
+            }
+        }
+    }
+}
