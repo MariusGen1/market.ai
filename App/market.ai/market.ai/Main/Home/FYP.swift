@@ -30,8 +30,6 @@ struct Home: View {
     var filteredFeed: [Article]? {
         guard let feed else { return nil }
         guard let selectedStock else { return feed }
-        print(feed.map({ $0.relevantTickers }))
-        print(selectedStock.ticker)
         return feed.filter({ $0.relevantTickers.contains(selectedStock.ticker) })
     }
     
@@ -96,32 +94,40 @@ struct Home: View {
                                     .padding()
                                 }
                                 
-                                else {
+                                if !filteredFeed.isEmpty {
                                     NavigationLink(destination: ArticleView(article: filteredFeed[0])) {
                                         TopBento(geo: geo, article: filteredFeed[0])
                                     }
-                                    
-                                    HStack(spacing: 16) {
-                                        if filteredFeed.count >= 2 {
-                                            NavigationLink(destination: ArticleView(article: filteredFeed[1])) {
-                                                MiddleBento(geo: geo, article: filteredFeed[1])
-                                            }
-                                        }
-                                        
-                                        if filteredFeed.count >= 3 {
-                                            NavigationLink(destination: ArticleView(article: filteredFeed[2])) {
-                                                MiddleBento(geo: geo, article: filteredFeed[2])
-                                            }
+                                } else {
+                                    Text("Sorry, nothing for now!")
+                                        .fontWeight(.semibold)
+                                        .opacity(0.7)
+                                        .padding(.top, 50)
+                                        .foregroundStyle(.white)
+                                        .multilineTextAlignment(.center)
+                                        .frame(maxWidth: .infinity)
+                                }
+                                
+                                HStack(spacing: 16) {
+                                    if filteredFeed.count >= 2 {
+                                        NavigationLink(destination: ArticleView(article: filteredFeed[1])) {
+                                            MiddleBento(geo: geo, article: filteredFeed[1])
                                         }
                                     }
-                                    .padding(.horizontal)
                                     
-                                    if filteredFeed.count >= 4 {
-                                        VStack(spacing: 16) {
-                                            ForEach(Array(filteredFeed.dropFirst(3)), id: \.self) { article in
-                                                NavigationLink(destination: ArticleView(article: article)) {
-                                                    BottomBento(geo: geo, article: article)
-                                                }
+                                    if filteredFeed.count >= 3 {
+                                        NavigationLink(destination: ArticleView(article: filteredFeed[2])) {
+                                            MiddleBento(geo: geo, article: filteredFeed[2])
+                                        }
+                                    }
+                                }
+                                .padding(.horizontal)
+                                
+                                if filteredFeed.count >= 4 {
+                                    VStack(spacing: 16) {
+                                        ForEach(Array(filteredFeed.dropFirst(3)), id: \.self) { article in
+                                            NavigationLink(destination: ArticleView(article: article)) {
+                                                BottomBento(geo: geo, article: article)
                                             }
                                         }
                                     }
