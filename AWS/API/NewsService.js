@@ -11,7 +11,7 @@ router.get('/articles', async (req,res,next) => {
 });
 
 router.post('/article', async (req,res,next) => {
-    const { title, body, image_url, sources, importance_level, uid, summary, portfolio_impact } = req.body;
+    const { title, body, image_url, sources, importance_level, uid, summary, portfolio_impact, relevant_tickers } = req.body;
     if (!title) return res.status(400).send('Missing title');
     if (!body) return res.status(400).send('Missing body');
     if (!image_url) return res.status(400).send('Missing image_url');
@@ -20,9 +20,10 @@ router.post('/article', async (req,res,next) => {
     if (!uid) return res.status(400).send('Missing uid');
     if (!summary) return res.status(400).send('Missing summary');
     if (!portfolio_impact) return res.status(400).send('Missing portfolio_impact');
+    if (!relevant_tickers) return res.status(400).send('Missing relevant_tickers');
 
     try {
-        await db.insert('INSERT INTO articles (title, body, image_url, sources, importance_level, summary, uid, portfolio_impact) VALUES (?,?,?,?,?,?,?,?)', [title, body, image_url, sources, importance_level, summary, uid, portfolio_impact]);
+        await db.insert('INSERT INTO articles (title, body, image_url, sources, importance_level, summary, uid, portfolio_impact, relevant_tickers) VALUES (?,?,?,?,?,?,?,?,?)', [title, body, image_url, sources, importance_level, summary, uid, portfolio_impact, relevant_tickers]);
         return res.status(200).send('Success');
 
     } catch(e) { next(e); }

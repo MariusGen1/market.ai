@@ -1,17 +1,30 @@
 import SwiftUI
 
 struct Home: View {
-    @State private var greeting = ""
     @State private var selectedStock: Stock? = nil
     
     @State private var portfolio: [Stock]? = nil
     @State private var feed: [Article]? = nil
+    @Environment(\.navigationController) var navigationController
     
     private func loadData() async {
         do {
             portfolio = try await UserService.getPortfolio()
             feed = try await NewsService.getArticles()
         } catch { print(error) }
+    }
+    
+    var greeting: String {
+        guard case .home(let user) = navigationController.screen else { return "Welcome!" }
+        guard let name = user.displayName, !name.isEmpty else { return "Welcome!" }
+        let firstname = String(name.split(separator: " ")[0])
+        
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 3..<12: return "Good Morning \(firstname)"
+        case 12..<18: return "Good Afternoon \(firstname)"
+        default: return "Good Evening \(firstname)"
+        }
     }
     
     var body: some View {
@@ -29,13 +42,10 @@ struct Home: View {
                                     Text(greeting)
                                         .font(.system(size: 28, weight: .bold))
                                         .foregroundColor(.white)
+                                        .padding([.horizontal, .top])
                                     Spacer()
                                 }
-                                
-//                                    Rectangle()
-//                                        .fill(Color.gray.opacity(0.20))
-//                                        .frame(height: 125)
-//                                        .cornerRadius(15)
+                                .padding(.bottom, -20)
                                 
                                 // individual stocks
                                 ScrollView(.horizontal, showsIndicators: false) {
@@ -110,24 +120,8 @@ struct Home: View {
                         ProgressView()
                     }
                 }
-                .onAppear() {
-                    setGreeting()
-                }
-                .task {
-                    await loadData()
-                }
+                .task { await loadData() }
             }
-        }
-    }
-    private func setGreeting() {
-        let hour = Calendar.current.component(.hour, from: Date())
-        switch hour {
-        case 3..<12:
-            greeting = "Good Morning Max"
-        case 12..<18:
-            greeting = "Good Afternoon Max"
-        default:
-            greeting = "Good Evening Max"
         }
     }
 }

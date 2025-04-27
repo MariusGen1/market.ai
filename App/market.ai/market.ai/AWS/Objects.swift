@@ -99,6 +99,7 @@ struct Article: Decodable, Hashable {
     let portfolioImpact: String
     let summary: String
     let articleId: Int
+    let relevantTickers: [String]
     
     enum CodingKeys: String, CodingKey {
         case title
@@ -110,6 +111,7 @@ struct Article: Decodable, Hashable {
         case portfolioImpact = "portfolio_impact"
         case summary
         case articleId = "article_id"
+        case relevantTickers = "relevant_tickers"
     }
     
     init(from decoder: any Decoder) throws {
@@ -130,6 +132,9 @@ struct Article: Decodable, Hashable {
         portfolioImpact = try container.decode(String.self, forKey: .portfolioImpact)
         
         articleId = try container.decode(Int.self, forKey: .articleId)
+       
+        let rawRelevantTickers = try container.decode(String.self, forKey: .relevantTickers)
+        relevantTickers = rawRelevantTickers.split(separator: ",").map({ String($0) })
     }
 }
 
@@ -156,5 +161,12 @@ struct ChatMessage: Decodable, Identifiable {
         
         let rawTs = try container.decode(String.self, forKey: .ts)
         ts = try rawTs.parseDBTimestamp()
+    }
+    
+    init(body: String) {
+        messageId = 3498423848
+        self.body = body
+        isUserMessage = true
+        ts = Date()
     }
 }

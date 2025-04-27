@@ -31,7 +31,7 @@ struct TopBento: View {
             }
             
             HStack(alignment: .bottom) {
-                Text(article.title)
+                Text(article.title.replacingOccurrences(of: "#", with: ""))
                     .foregroundColor(.white)
                     .font(.system(size: 16, weight: .bold))
                     .lineLimit(2)
@@ -76,7 +76,7 @@ struct MiddleBento: View {
             .clipped()
             
             VStack(alignment: .leading, spacing: 10) {
-                Text(article.title)
+                Text(article.title.replacingOccurrences(of: "#", with: ""))
                     .foregroundColor(.white)
                     .font(.system(size: 16, weight: .bold))
                     .lineLimit(3)
@@ -103,7 +103,7 @@ struct BottomBento: View {
     var body: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 12) {
-                Text(article.title)
+                Text(article.title.replacingOccurrences(of: "#", with: ""))
                     .foregroundColor(.white)
                     .font(.system(size: 16, weight: .bold))
                     .lineLimit(2)

@@ -10,7 +10,7 @@ CREATE TABLE users (
     at_a_glance_text TEXT NULL
 );
 
-INSERT INTO users (uid, financial_literacy_level) VALUES ("abcd", 2);
+INSERT INTO users (uid, financial_literacy_level) VALUES ("kNtZ7d4A6OXgH7UBhdjctZYka9Z2", 2);
 
 CREATE TABLE stocks (
     ticker VARCHAR(255) PRIMARY KEY,
@@ -36,6 +36,7 @@ CREATE TABLE articles (
     sources VARCHAR(1500) NOT NULL,
     ts DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     importance_level INT NOT NULL,
+    relevant_tickers VARCHAR(300) NOT NULL,
     uid VARCHAR(255) NOT NULL REFERENCES users(uid) ON DELETE CASCADE
 );
 

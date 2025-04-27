@@ -10,21 +10,10 @@ struct ArticleView: View {
     
     let article: Article
     
-    private func getMessages() async {
-        do {
-            chatMessages = try await ChatService.getMessages(for: article.articleId)
-        } catch { print(error) }
-    }
-    
-    private func postMessage() async {
-        guard userInput.count > 0 else { return }
-        let tmp = userInput
-        userInput = ""
-        
-        do {
-            try await ChatService.postMessage(articleId: article.articleId, body: tmp)
-            await getMessages()
-        } catch { print(error) }
+    var formattedArticleDate: String {
+        let df = DateFormatter()
+        df.dateFormat = "MMM dd, yyyy hh:mm"
+        return df.string(from: article.ts)
     }
     
     
@@ -58,9 +47,15 @@ struct ArticleView: View {
                         VStack(alignment: .leading, spacing: 25) {
                             HStack {
                                 Spacer()
-                                Text(article.title)
-                                    .multilineTextAlignment(.center)
-                                    .font(.system(size: 25, weight: .bold))
+                                
+                                VStack(spacing: 7) {
+                                    Text(article.title.replacingOccurrences(of: "#", with: ""))
+                                        .multilineTextAlignment(.center)
+                                        .font(.system(size: 25, weight: .bold))
+                                    Text(formattedArticleDate)
+                                        .font(.footnote)
+                                        .opacity(0.6)
+                                }
                                 Spacer()
                             }
                             
@@ -79,37 +74,7 @@ struct ArticleView: View {
                                 Text("Ask about this article")
                                     .font(.system(size: 20, weight: .bold))
                                 
-                                VStack(spacing: 12) {
-                                    ForEach(chatMessages) { msg in
-                                        chatBubble(message: msg)
-                                    }
-                                }
-                                .frame(maxHeight: 200)
-                                .background(Color.white.opacity(0.03))
-                                .cornerRadius(15)
-                                
-                                HStack {
-                                    VStack(spacing: 12) {
-                                        TextField("", text: $userInput, prompt: Text("Ask anything").foregroundStyle(.gray))
-                                            .autocapitalization(.none)
-                                            .disableAutocorrection(true)
-                                            .padding()
-                                    }
-                                    
-                                    Button { Task { await postMessage() } } label: {
-                                        Image(systemName: "arrow.up.circle.fill")
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fit)
-                                            .frame(width: 25, height: 25)
-                                            .foregroundColor(!userInput.isEmpty ? Color("purpleLight") : .gray.opacity(0.5))
-                                            .offset(x: -3, y: 1)
-                                            .padding(.trailing)
-                                    }
-                                }
-                                .background(.gray.opacity(0.18))
-                                .foregroundStyle(.white.opacity(0.75))
-                                .cornerRadius(20)
-                                .padding(.bottom, 10)
+                                ChatView(article.articleId)
                             }
                             Spacer(minLength: 30)
                         }
@@ -137,7 +102,6 @@ struct ArticleView: View {
                         .shadow(radius: 5)
                     }
                 }
-                .task { await getMessages() }
                 .foregroundStyle(.white)
             }
         }
@@ -154,33 +118,156 @@ struct ArticleView: View {
             .background(Color.white.opacity(0.05))
             .cornerRadius(12)
     }
-    
-    private func chatBubble(message: ChatMessage) -> some View {
-        HStack {
-            if message.isUserMessage { Spacer() }
-            
-            Text(message.body)
-                .padding(10)
-                .background(Color.white.opacity(0.1))
-                .cornerRadius(10)
-                .foregroundColor(.white)
-            
-            if !message.isUserMessage { Spacer() }
-        }
-        .padding(.horizontal, 5)
-    }
 }
 
 struct RoundedTextContainer: View {
     let content: String
     
     var body: some View {
-        Text(content)
+        Text(LocalizedStringKey(content))
             .font(.system(size: 16))
             .foregroundColor(.white.opacity(0.8))
             .fixedSize(horizontal: false, vertical: true)
             .padding()
             .background(Color.white.opacity(0.05))
             .cornerRadius(15)
+    }
+}
+
+struct ChatView: View {
+    private let articleId: Int
+    @State private var messages: [ChatMessage]?
+    @State private var thinking = false
+    @State private var userInput = ""
+    
+    init(_ articleId: Int) { self.articleId = articleId }
+    
+    private func getMessages() async {
+        do {
+            messages = try await ChatService.getMessages(for: articleId)
+        } catch { print(error) }
+    }
+    
+    private func postMessage() async {
+        guard userInput.count > 0 else { return }
+        let tmp = userInput
+        userInput = ""
+        withAnimation { thinking = true }
+        
+        withAnimation { messages?.append(ChatMessage(body: tmp)) }
+        
+        do {
+            try await ChatService.postMessage(articleId: articleId, body: tmp)
+            await getMessages()
+            withAnimation { thinking = false }
+        } catch { print(error) }
+    }
+    
+    var body: some View {
+        Group {
+            if let messages {
+                VStack(spacing: 10) {
+                    ForEach(messages) { msg in
+                        MessageView(message: msg)
+                    }
+                    
+                    if thinking {
+                        ThinkinAnimation()
+                    }
+                    
+                    HStack {
+                        TextField("", text: $userInput, prompt: Text("Ask anything").foregroundStyle(.gray))
+                            .autocapitalization(.none)
+                            .disableAutocorrection(true)
+                            .padding()
+                        
+                        Button { Task { await postMessage() } } label: {
+                            Image(systemName: "arrow.up.circle.fill")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 25, height: 25)
+                                .foregroundColor(!userInput.isEmpty ? Color("purpleLight") : .gray.opacity(0.5))
+                                .offset(x: -3, y: 1)
+                                .padding(.trailing)
+                        }
+                    }
+                    .background(.gray.opacity(0.18))
+                    .foregroundStyle(.white.opacity(0.75))
+                    .cornerRadius(20)
+                }
+                .padding(.bottom, 20)
+                
+            } else {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .padding(.top, 50)
+            }
+        }
+        .task { await getMessages() }
+    }
+}
+
+struct MessageView: View {
+    let message: ChatMessage
+    
+    var body: some View {
+        HStack {
+            if message.isUserMessage { Spacer() }
+
+            Text(LocalizedStringKey(message.body))
+                .multilineTextAlignment(message.isUserMessage ? .trailing : .leading)
+                .padding(10)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundStyle(Color.white.opacity(0.05))
+                )
+            
+            if !message.isUserMessage { Spacer() }
+        }
+    }
+}
+
+struct ThinkinAnimation: View {
+    @State private var shimmer = false
+    
+    var body: some View {
+        HStack {
+            ZStack {
+                HStack(spacing: 10) {
+                    HStack {
+                        Text("Thinking...")
+                        Image(systemName: "sparkles")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 15, height: 15)
+                    }
+                    .foregroundColor(.gray)
+                }
+                HStack(spacing: 10) {
+                    HStack {
+                        Text("Thinking...")
+                        Image(systemName: "sparkles")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 15, height: 15)
+                        }
+                        .foregroundColor(.gray)
+                        .mask(
+                            Capsule()
+                                .fill(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [.clear, .white, .clear]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .offset(x: shimmer ? 180 : -180)
+                        )
+                }
+            }
+            Spacer()
+        }
+    .onAppear {
+        withAnimation(Animation.linear(duration: 1.5).repeatForever(autoreverses: false)) { shimmer = true } }
     }
 }
