@@ -25,12 +25,13 @@ struct Login: View {
             Image(.marketAiLogo)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 120)
+                .frame(width: 145)
 
             Spacer()
             
             GoogleSignInButton()
         }
+        .padding(.vertical, 10)
         .background(Color("bgNavy"))
     }
 }
