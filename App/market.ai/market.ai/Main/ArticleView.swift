@@ -69,6 +69,20 @@ struct ArticleView: View {
                                 RoundedTextContainer(content: article.portfolioImpact)
                             }
                             
+                            VStack(alignment: .leading, spacing: 15) {
+                                Text("Sources")
+                                    .font(.system(size: 20, weight: .bold))
+                                
+                                ScrollView(.horizontal) {
+                                    HStack(spacing: 10) {
+                                        ForEach(article.sources, id: \.absoluteString) { source in
+                                            WebsiteLinkView(url: source)
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            
                             // Chat Assistant
                             VStack(alignment: .leading, spacing: 15) {
                                 Text("Ask about this article")
@@ -269,5 +283,28 @@ struct ThinkinAnimation: View {
         }
     .onAppear {
         withAnimation(Animation.linear(duration: 1.5).repeatForever(autoreverses: false)) { shimmer = true } }
+    }
+}
+
+struct WebsiteLinkView: View {
+    @Environment(\.openURL) var openURL
+    let url: URL
+    
+    var body: some View {
+        Button { openURL(url) } label: {
+            HStack {
+                Text(url.host(percentEncoded: false) ?? url.description)
+                    .multilineTextAlignment(.leading)
+                    .font(.caption)
+                Spacer()
+                Image(systemName: "arrow.up.right.square")
+            }
+            .foregroundColor(.white)
+            .padding(10)
+            .background(
+                Capsule()
+                    .foregroundStyle(Color.white.opacity(0.05))
+            )
+        }
     }
 }

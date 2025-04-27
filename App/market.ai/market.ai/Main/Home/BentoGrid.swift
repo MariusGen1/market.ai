@@ -21,14 +21,14 @@ struct TopBento: View {
                     image
                         .resizable()
                         .scaledToFill()
-                        .frame(width: geo.size.width - 32, height: 375)
-                        .clipped()
                 case .failure(_):
                     Color.gray
                 @unknown default:
                     Color.gray
                 }
             }
+            .frame(width: geo.size.width - 32, height: 300)
+            .clipped()
             
             HStack(alignment: .bottom) {
                 Text(article.title.replacingOccurrences(of: "#", with: ""))
@@ -80,6 +80,7 @@ struct MiddleBento: View {
                     .foregroundColor(.white)
                     .font(.system(size: 16, weight: .bold))
                     .lineLimit(3)
+                    .multilineTextAlignment(.leading)
                 
                 Text(article.ts.compactTimeSince()  + " ago")
                     .foregroundColor(.gray)
@@ -96,13 +97,12 @@ struct MiddleBento: View {
 
 
 struct BottomBento: View {
-    
     let geo: GeometryProxy
     let article: Article
     
     var body: some View {
         HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text(article.title.replacingOccurrences(of: "#", with: ""))
                     .foregroundColor(.white)
                     .font(.system(size: 16, weight: .bold))

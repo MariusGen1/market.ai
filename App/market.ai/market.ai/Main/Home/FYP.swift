@@ -27,15 +27,22 @@ struct Home: View {
         }
     }
     
+    var filteredFeed: [Article]? {
+        guard let feed else { return nil }
+        guard let selectedStock else { return feed }
+        print(feed.map({ $0.relevantTickers }))
+        print(selectedStock.ticker)
+        return feed.filter({ $0.relevantTickers.contains(selectedStock.ticker) })
+    }
+    
     var body: some View {
-        
         GeometryReader { geo in
             NavigationStack {
                 ZStack {
                     Color("bgNavy")
                         .ignoresSafeArea()
                     
-                    if let feed {
+                    if let filteredFeed {
                         ScrollView {
                             VStack(alignment: .leading, spacing: 25) {
                                 HStack {
@@ -45,15 +52,14 @@ struct Home: View {
                                         .padding([.horizontal, .top])
                                     Spacer()
                                 }
-                                .padding(.bottom, -20)
                                 
                                 // individual stocks
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 15) {
                                         if let portfolio {
-                                            ForEach(portfolio, id: \.name) { stock in
+                                            ForEach(portfolio, id: \.ticker) { stock in
                                                 StockPillFYP(
-                                                    icon: stock.iconUrl!,
+                                                    icon: stock.iconUrl,
                                                     ticker: stock.ticker,
                                                     isSelected: selectedStock?.name == stock.name,
                                                     onTap: {
@@ -67,7 +73,9 @@ struct Home: View {
                                             }
                                         }
                                     }
+                                    .padding(.horizontal)
                                 }
+                                .padding(.vertical, -8)
                                 
                                 // specific stock news section
                                 if let selected = selectedStock {
@@ -89,24 +97,31 @@ struct Home: View {
                                 }
                                 
                                 else {
-                                    NavigationLink(destination: ArticleView(article: feed[0])) {
-                                        TopBento(geo: geo, article: feed[0])
+                                    NavigationLink(destination: ArticleView(article: filteredFeed[0])) {
+                                        TopBento(geo: geo, article: filteredFeed[0])
                                     }
                                     
                                     HStack(spacing: 16) {
-                                        NavigationLink(destination: ArticleView(article: feed[1])) {
-                                            MiddleBento(geo: geo, article: feed[1])
+                                        if filteredFeed.count >= 2 {
+                                            NavigationLink(destination: ArticleView(article: filteredFeed[1])) {
+                                                MiddleBento(geo: geo, article: filteredFeed[1])
+                                            }
                                         }
-                                        NavigationLink(destination: ArticleView(article: feed[2])) {
-                                            MiddleBento(geo: geo, article: feed[2])
+                                        
+                                        if filteredFeed.count >= 3 {
+                                            NavigationLink(destination: ArticleView(article: filteredFeed[2])) {
+                                                MiddleBento(geo: geo, article: filteredFeed[2])
+                                            }
                                         }
                                     }
                                     .padding(.horizontal)
                                     
-                                    VStack(spacing: 16) {
-                                        ForEach(Array(feed.dropFirst(3)), id: \.self) { article in
-                                            NavigationLink(destination: ArticleView(article: article)) {
-                                                BottomBento(geo: geo, article: article)
+                                    if filteredFeed.count >= 4 {
+                                        VStack(spacing: 16) {
+                                            ForEach(Array(filteredFeed.dropFirst(3)), id: \.self) { article in
+                                                NavigationLink(destination: ArticleView(article: article)) {
+                                                    BottomBento(geo: geo, article: article)
+                                                }
                                             }
                                         }
                                     }
@@ -115,6 +130,7 @@ struct Home: View {
                                 Spacer()
                             }
                         }
+                        .refreshable { await loadData() }
                     }
                     else {
                         ProgressView()
@@ -125,6 +141,3 @@ struct Home: View {
         }
     }
 }
-
-
-

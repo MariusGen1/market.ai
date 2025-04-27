@@ -65,14 +65,14 @@ struct StockPill: View {
 
 
 struct StockPillFYP: View {
-    let icon: URL
+    let icon: URL?
     let ticker: String
     var isSelected: Bool
     var onTap: (() -> Void)? = nil
 
     var body: some View {
         HStack(spacing: 0) {
-            if let url = URL(string: "\(icon)?apiKey=Nr5wXB7hsyVNN_M4sLiakJdIIexXy61j") {
+            if let icon, let url = URL(string: "\(icon)?apiKey=Nr5wXB7hsyVNN_M4sLiakJdIIexXy61j") {
                 AsyncImage(url: url) { phase in
                     switch phase {
                     case .empty:

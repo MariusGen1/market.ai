@@ -72,15 +72,15 @@ router.post('/fcmToken', async (req,res,next) => {
 
 router.get('/portfolio', async (req,res,next) => {
     try {
-        return res.status(200).send([]);
-
         const data = await db.do(`
-        SELECT t.*
+        SELECT s.*
         FROM portfolio_contents pc
         INNER JOIN stocks s ON pc.stock_ticker = s.ticker
         WHERE pc.uid = ?
         ORDER BY s.market_cap DESC
         `, [req.user.uid]);
+
+        console.log(data);
 
         return res.status(200).send(data);
 

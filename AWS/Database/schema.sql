@@ -19,12 +19,29 @@ CREATE TABLE stocks (
     icon_url VARCHAR(300) NULL
 );
 
+INSERT INTO stocks (ticker, name, market_cap) VALUES
+    ("AAPL", "Apple Inc.", 100000000),
+    ("IONQ", "IonQ", 10000),
+    ("NVDA", "Nvidia", 10000),
+    ("GOOGL", "Alphabet", 1000000),
+    ("TSLA", "Tesla", 1000000)
+;
+
 CREATE TABLE portfolio_contents (
     portfolio_contents_id INT PRIMARY KEY AUTO_INCREMENT,
     uid VARCHAR(255) NOT NULL REFERENCES users(uid) ON DELETE CASCADE,
-    stock_ticker INT NOT NULL REFERENCES stocks(ticker) ON DELETE CASCADE,
+    stock_ticker VARCHAR(255) NOT NULL REFERENCES stocks(ticker) ON DELETE CASCADE,
     added_ts DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+INSERT INTO portfolio_contents (uid, stock_ticker) VALUES
+    ("kNtZ7d4A6OXgH7UBhdjctZYka9Z2", "TSLA"),
+    ("kNtZ7d4A6OXgH7UBhdjctZYka9Z2", "GOOGL"),
+    ("kNtZ7d4A6OXgH7UBhdjctZYka9Z2", "AAPL"),
+    ("kNtZ7d4A6OXgH7UBhdjctZYka9Z2", "NVDA"),
+    ("kNtZ7d4A6OXgH7UBhdjctZYka9Z2", "IONQ")
+;
+
 
 CREATE TABLE articles (
     article_id INT PRIMARY KEY AUTO_INCREMENT,
