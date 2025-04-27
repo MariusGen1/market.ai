@@ -129,8 +129,14 @@ struct ArticleView: View {
                         Button(action: { dismiss() }) {
                             HStack(spacing: 4) {
                                 Image(systemName: "chevron.left")
-                                Text("Custom Back")
+                                    .bold()
+                                Text("Back")
+                                    .bold()
                             }
+                            .padding()
+                            .background(Color("purpleLight"))
+                            .clipShape(RoundedRectangle(cornerRadius: 30))
+                            .padding()
                         }
                     }
                 }
@@ -168,3 +174,6 @@ struct ArticleView: View {
 //        userInput = ""
 //    }
 }
+
+
+

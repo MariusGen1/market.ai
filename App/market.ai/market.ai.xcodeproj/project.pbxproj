@@ -10,12 +10,10 @@
 		5985F35C2DBC95D3005B1104 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 5985F35B2DBC95D3005B1104 /* GoogleSignIn */; };
 		5985F35E2DBC95D3005B1104 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 5985F35D2DBC95D3005B1104 /* GoogleSignInSwift */; };
 		5985F3612DBC96DD005B1104 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 5985F3602DBC96DD005B1104 /* FirebaseAuth */; };
-		59950B2A2DBE08E50036E97D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 59950B292DBE08E50036E97D /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		5985F3492DBC913E005B1104 /* market.ai.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = market.ai.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		59950B292DBE08E50036E97D /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -43,7 +41,6 @@
 		5985F3402DBC913E005B1104 = {
 			isa = PBXGroup;
 			children = (
-				59950B292DBE08E50036E97D /* GoogleService-Info.plist */,
 				5985F34B2DBC913E005B1104 /* market.ai */,
 				5985F34A2DBC913E005B1104 /* Products */,
 			);
@@ -128,7 +125,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				59950B2A2DBE08E50036E97D /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -274,6 +270,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "market-ai-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -302,6 +299,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "market-ai-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

@@ -89,7 +89,7 @@ enum FinancialLiteracyLevel: Int, CaseIterable {
     }
 }
 
-struct Article: Decodable {
+struct Article: Decodable, Hashable {
     let title: String
     let body: String
     let imageUrl: URL
@@ -135,32 +135,5 @@ struct Article: Decodable {
         self.sources = sources
         self.ts = ts
         self.importanceLevel = importanceLevel
-    }
-}
-
-struct ChatMessage: Decodable, Identifiable {
-    let messageId: Int
-    let body: String
-    let ts: Date
-    let isUserMessage: Bool
-    
-    var id: Int { messageId }
-    
-    enum CodingKeys: String, CodingKey {
-        case messageId = "message_id"
-        case body
-        case ts
-        case isUserMessage = "is_user_message"
-    }
-    
-    init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        messageId = try container.decode(Int.self, forKey: .messageId)
-        body = try container.decode(String.self, forKey: .body)
-        
-        let rawTs = try container.decode(String.self, forKey: .ts)
-        ts = try rawTs.parseDBTimestamp()
-        
-        isUserMessage = (try container.decode(Int.self, forKey: .isUserMessage)) == 1
     }
 }

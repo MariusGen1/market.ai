@@ -60,17 +60,17 @@ struct GoogleSignInButton: View {
                                                                accessToken: user.accessToken.tokenString)
                 
                 Auth.auth().signIn(with: credential) { authResult, error in
-                    if let error {
-                        print(error)
-                        return
-                    }
+                    guard error == nil else { return }
                     
                     if let user = Auth.auth().currentUser {
-                        Task { @MainActor in navigationController.screen = .onboardLiteracy(user: user) }
+                        DispatchQueue.main.async {
+                            navigationController.screen = .onboardLiteracy(user: user)
+                        }
                     } else {
                         print("Something went wrong :(")
                     }
                 }
+
             }
         }) {
             HStack(spacing: 10) {

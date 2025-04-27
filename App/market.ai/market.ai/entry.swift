@@ -21,6 +21,9 @@ struct market_aiApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
+    @StateObject private var navController = NavigationController()
+
+    
     init() {
         let appearance = UINavigationBarAppearance()
         
@@ -39,7 +42,8 @@ struct market_aiApp: App {
     
     var body: some Scene {
         WindowGroup {
-            Login()
+            FlowController()
+                .environmentObject(navController)
         }
     }
 }

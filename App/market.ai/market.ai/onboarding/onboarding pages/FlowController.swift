@@ -8,22 +8,12 @@
 import SwiftUI
 import FirebaseAuth
 
-private struct UserKey: EnvironmentKey {
-    static var defaultValue: User {
-        fatalError("User not set")
-    }
-}
 
 private struct NavigationControllerKey: EnvironmentKey {
     static var defaultValue = NavigationController()
 }
 
 extension EnvironmentValues {
-    var user: User! {
-        get { self[UserKey.self] }
-        set { self[UserKey.self] = newValue }
-    }
-    
     var navigationController: NavigationController {
         get { self[NavigationControllerKey.self] }
         set { self[NavigationControllerKey.self] = newValue }
@@ -55,16 +45,12 @@ struct FlowController: View {
                 Login()
             case .landing(let user):
                 WelcomeScreen()
-                    .environment(\.user, user)
             case .onboardLiteracy(let user):
                 OnboardLiteracy()
-                    .environment(\.user, user)
             case .onboardStocks(let user, _):
                 OnboardStocks()
-                    .environment(\.user, user)
             case .home(let user):
-                EmptyView()
-                    .environment(\.user, user)
+                Home()
             }
         }
         .environment(\.navigationController, navigationController)

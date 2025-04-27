@@ -10,7 +10,12 @@ import FirebaseAuth
 
 struct WelcomeScreen: View {
     @Environment(\.navigationController) var navigationController
-    @Environment(\.user) var user
+//    @Environment(\.user) var user
+    
+    private var userName: String {
+        guard case .landing(let user) = navigationController.screen else { return "" }
+        return String((user.displayName ?? "").split(separator: " ")[0])
+    }
 
     var body: some View {
         NavigationView {
@@ -20,7 +25,7 @@ struct WelcomeScreen: View {
 
                 VStack(alignment: .leading, spacing: 30) {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Hey \(user!.displayName!.split(separator: " ")[0])!")
+                        Text("Hey \(userName)!")
                             .font(.system(size: 28, weight: .bold))
                             .foregroundColor(.white)
 
