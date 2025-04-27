@@ -6,7 +6,8 @@ CREATE TABLE users (
     uid VARCHAR(255) PRIMARY KEY,
     fcm_token VARCHAR(255) NULL,
     financial_literacy_level INT NOT NULL,
-    agent_seed VARCHAR(255) NULL
+    agent_seed VARCHAR(255) NULL,
+    at_a_glance_text TEXT NULL
 );
 
 INSERT INTO users (uid, financial_literacy_level) VALUES ("abcd", 2);
@@ -76,4 +77,12 @@ CREATE TABLE unformatted_articles (
     data JSON NOT NULL,
     processed BOOLEAN NOT NULL DEFAULT 0,
     ts DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE article_messages (
+    message_id INT PRIMARY KEY AUTO_INCREMENT,
+    article_id INT NOT NULL REFERENCES articles(article_id) ON DELETE CASCADE,
+    body TEXT NOT NULL,
+    ts DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_user_message BOOLEAN NOT NULL
 );

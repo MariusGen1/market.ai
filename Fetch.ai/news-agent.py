@@ -2,7 +2,7 @@ from uagents import Agent, Context
 import aiohttp
 from datetime import datetime, timezone
 
-API_KEY = '96f0dc70b16d2643a880627a24719b37'
+API_KEY = '96f0dc70b16d2643a880627a24719b37' # We're disabling this as soon as the hackathon is over 😎
 BASE_URL = f'http://api.mediastack.com/v1/news?access_key={API_KEY}&languages=en&limit=10'
 
 class ArticleMessage(Model):

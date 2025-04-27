@@ -14,9 +14,11 @@ const router = express.Router();
 
 const userService = require('./API/UserService');
 const newsService = require('./API/NewsService');
+const chatService = require('./API/ChatService');
 
 router.use(userService);
 router.use(newsService);
+router.use(chatService);
 
 app.use(express.json());
 app.use(rateLimiter);

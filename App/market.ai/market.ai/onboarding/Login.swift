@@ -60,10 +60,13 @@ struct GoogleSignInButton: View {
                                                                accessToken: user.accessToken.tokenString)
                 
                 Auth.auth().signIn(with: credential) { authResult, error in
-                    guard error == nil else { return }
+                    if let error {
+                        print(error)
+                        return
+                    }
                     
                     if let user = Auth.auth().currentUser {
-                        navigationController.screen = .onboardLiteracy(user: user)
+                        Task { @MainActor in navigationController.screen = .onboardLiteracy(user: user) }
                     } else {
                         print("Something went wrong :(")
                     }
