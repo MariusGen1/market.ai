@@ -8,7 +8,7 @@
 import SwiftUI
 import FirebaseAuth
 
-struct MainInfo: View {
+struct WelcomeScreen: View {
     @Environment(\.navigationController) var navigationController
     @Environment(\.user) var user
 

@@ -1,6 +1,8 @@
 import SwiftUI
+import Combine
 
 struct OnboardStocks: View {
+    
     @Environment(\.navigationController) var navigationController
     
     @State private var stocks: [Stock] = []
@@ -8,6 +10,10 @@ struct OnboardStocks: View {
     
     @State private var searchText: String = ""
     @State private var showSelections: Bool = false
+    
+    @State private var debouncedText: String = ""
+    @State private var cancellables = Set<AnyCancellable>()
+
 
     var body: some View {
         ZStack {
@@ -15,7 +21,7 @@ struct OnboardStocks: View {
             
             VStack(alignment: .leading, spacing: 20) {
 
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: 20) {
                     HStack {
                         Text("Your Portfolio")
                             .font(.system(size: 28, weight: .bold))
@@ -25,17 +31,14 @@ struct OnboardStocks: View {
                             showSelections.toggle()
                         } label: {
                             if !selectedStocks.isEmpty {
-                                HStack(spacing: 10) {
-                                    Image(systemName: "arrow.down.left.and.arrow.up.right")
-                                        .foregroundStyle(Color("purpleLight"))
-                                    Text("\(selectedStocks.count)")
-                                        .fontWeight(.bold)
-                                        .foregroundStyle(Color("purpleLight"))
-                                        .padding(.trailing)
-                                }
+                                Text("View")
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(Color("purpleLight"))
+                                    .padding(.trailing)
                             }
                         }
                     }
+                    
                     Text("Select the stocks that match your portfolio. Marketplace will tailor your daily updates to these selections.")
                         .font(.system(size: 17))
                         .foregroundColor(.gray)
@@ -43,18 +46,18 @@ struct OnboardStocks: View {
                 
                 HStack {
                     Image(systemName: "magnifyingglass").foregroundStyle(.gray)
-                    TextField("", text: $searchText, prompt: Text("Search stocks...").foregroundStyle(.gray))
+                    TextField("", text: $searchText, prompt: Text("Search ...").foregroundStyle(.gray))
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
                 }
                 .padding()
-                .background(.gray.opacity(0.20))
-                .foregroundStyle(.white)
+                .background(.gray.opacity(0.18))
+                .foregroundStyle(.white.opacity(0.75))
                 .cornerRadius(12)
                 .padding(.bottom, 10)
                 
                 
-                StockList(
+                StockDisplay(
                     stocks: stocks.isEmpty ? top50stocks : stocks,
                     searchText: $searchText,
                     selectedStocks: $selectedStocks
@@ -103,10 +106,18 @@ struct OnboardStocks: View {
             }
         }
         .sheet(isPresented: $showSelections) {
-            SelectedStocksSheet(selectedStocks: selectedStocks)
+            Portfolio(selectedStocks: $selectedStocks)
                 .presentationDetents([.fraction(0.50)])
         }
-        .onChange(of: searchText) { _, newTerm in
+        .onReceive(Just(searchText)
+            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
+        ) { value in
+            self.debouncedText = value
+        }
+        .onChange(of: searchText) { _, newValue in
+            debounceSearch(newValue)
+        }
+        .onChange(of: debouncedText) { _, newTerm in
             guard !newTerm.isEmpty else {
                 self.stocks = []
                 return
@@ -114,21 +125,31 @@ struct OnboardStocks: View {
             
             let stockSearcher = StockSearcher()
             stockSearcher.searchStocks(for: newTerm) { result in
-                if newTerm != searchText { return }
+                if newTerm != debouncedText { return }
                 
                 switch result {
                 case .success(let stocks):
                     self.stocks = stocks
-                    print(stocks)
                 case .failure(let error):
                     print("Error: \(error.localizedDescription)")
                 }
             }
         }
     }
+    private func debounceSearch(_ text: String) {
+        cancellables.forEach { $0.cancel() }
+        cancellables.removeAll()
+        
+        Just(text)
+            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
+            .sink { value in
+                self.debouncedText = value
+            }
+            .store(in: &cancellables)
+    }
 }
 
-struct StockList: View {
+struct StockDisplay: View {
     let stocks: [Stock]
     @Binding var searchText: String
     @Binding var selectedStocks: [Stock]
@@ -152,62 +173,11 @@ struct StockList: View {
                 }
             }
         }
+        .padding(.top)
     }
 }
 
 
-struct SelectedStocksSheet: View {
-    let selectedStocks: [Stock]
-    
-    var body: some View {
-        
-        VStack(alignment: .leading) {
-
-            HStack {
-                Spacer()
-                Rectangle()
-                    .frame(width: 40, height: 5)
-                    .foregroundColor(Color.gray.opacity(0.5))
-                    .cornerRadius(2.5)
-                Spacer()
-            }
-            .padding(.bottom, 10)
-            
-            HStack {
-                Text("Selected Stocks")
-                    .font(.system(size: 22, weight: .bold))
-                    .foregroundColor(.white)
-                Spacer()
-            }
-            .padding(.bottom, 10)
-            
-            if selectedStocks.isEmpty {
-                Spacer()
-                Text("You haven't selected any stocks yet.")
-                    .foregroundColor(.gray)
-                    .font(.system(size: 16))
-                Spacer()
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 25) {
-                        ForEach(0..<Int(ceil(Double(selectedStocks.count) / 3.0)), id: \.self) { rowIndex in
-                            HStack(spacing: 20) {
-                                ForEach(0..<3, id: \.self) { columnIndex in
-                                    let index = rowIndex * 3 + columnIndex
-                                    if index < selectedStocks.count {
-                                        let stock = selectedStocks[index]
-                                        StockPill(stock: stock,
-                                                  selectedStocks: .constant([]))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        .padding()
-        .background(Color("bgNavy"))
-        .ignoresSafeArea()
-    }
+#Preview {
+    OnboardStocks()
 }

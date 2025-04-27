@@ -44,10 +44,12 @@ struct StockPill: View {
         .foregroundColor(.white)
     }
     .padding(12)
-    .background(isSelected
-                ? Color.green.opacity(0.8)
-                : Color.gray.opacity(0.2))
+    .background(Color.gray.opacity(0.2))
     .cornerRadius(30)
+    .overlay(
+        RoundedRectangle(cornerRadius: 30)
+            .stroke(Color("purpleLight"), lineWidth: isSelected ? 4 : 0)
+    )
     .onTapGesture {
       if let idx = selectedStocks.firstIndex(where: { $0.ticker == stock.ticker }) {
         selectedStocks.remove(at: idx)

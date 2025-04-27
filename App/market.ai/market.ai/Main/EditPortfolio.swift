@@ -47,7 +47,7 @@ struct EditPortfolio: View {
                 .padding(.bottom, 10)
                 
                 
-                StockList(
+                StockDisplay(
                     stocks: stocks.isEmpty ? top50stocks : stocks,
                     searchText: $searchText,
                     selectedStocks: $selectedStocks

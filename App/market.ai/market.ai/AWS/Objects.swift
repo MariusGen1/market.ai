@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-struct Stock: Identifiable, Codable {
+struct Stock: Identifiable, Codable, Equatable {
+    
     var id: String { ticker }
 
     let name: String
@@ -15,7 +16,6 @@ struct Stock: Identifiable, Codable {
     let marketCap: Int
     let iconUrl: URL?
 
-    /// in-memory only, excluded from `CodingKeys`
     var hardcodedImage: Image?
 
     enum CodingKeys: String, CodingKey {
@@ -24,7 +24,6 @@ struct Stock: Identifiable, Codable {
         case iconUrl   = "icon_url"
     }
 
-    // 1) Decode only the JSON fields; always default image to nil
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         name      = try c.decode(String.self, forKey: .name)
@@ -34,7 +33,6 @@ struct Stock: Identifiable, Codable {
         hardcodedImage = nil
     }
 
-    // 2) Encode only JSON fields
     func encode(to encoder: Encoder) throws {
         var c = encoder.container(keyedBy: CodingKeys.self)
         try c.encode(name,      forKey: .name)
@@ -43,7 +41,6 @@ struct Stock: Identifiable, Codable {
         try c.encodeIfPresent(iconUrl, forKey: .iconUrl)
     }
 
-    // 3) Your “memberwise” init, now with the extra Image? parameter
     init(
       name: String,
       ticker: String,
@@ -116,11 +113,27 @@ struct Article: Decodable {
         imageUrl = try container.decode(URL.self, forKey: .imageUrl)
         
         let rawSources = try container.decode(String.self, forKey: .sources)
-        sources = rawSources.split(separator: ",").map({ URL(string: String($0)) }).filter({ $0 != nil }).map({ $0! })
+        sources = rawSources.split(separator: ",").compactMap { URL(string: String($0)) }
         
         let rawTs = try container.decode(String.self, forKey: .ts)
         ts = try rawTs.parseDBTimestamp()
         
         importanceLevel = try container.decode(Int.self, forKey: .importanceLevel)
+    }
+    
+    init(
+        title: String,
+        body: String,
+        imageUrl: URL,
+        sources: [URL],
+        ts: Date,
+        importanceLevel: Int
+    ) {
+        self.title = title
+        self.body = body
+        self.imageUrl = imageUrl
+        self.sources = sources
+        self.ts = ts
+        self.importanceLevel = importanceLevel
     }
 }

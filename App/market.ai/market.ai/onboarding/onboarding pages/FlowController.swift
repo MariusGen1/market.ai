@@ -54,7 +54,7 @@ struct FlowController: View {
             case .login:
                 Login()
             case .landing(let user):
-                MainInfo()
+                WelcomeScreen()
                     .environment(\.user, user)
             case .onboardLiteracy(let user):
                 OnboardLiteracy()

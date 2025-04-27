@@ -21,6 +21,17 @@ struct OnboardLiteracy: View {
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.leading)
                 }
+                
+                Spacer()
+                
+                HStack {
+                    Spacer()
+                    Image("literacy")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 225, height: 225)
+                    Spacer()
+                }
 
                 
                 Spacer()
@@ -34,18 +45,17 @@ struct OnboardLiteracy: View {
                                 .font(.system(size: 16, weight: .medium))
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(
-                                    selection == option ? Color("purpleLight") : Color.white.opacity(0.1)
-                                )
-                                .foregroundColor(selection == option ? .black : .white)
+                                .background(.gray.opacity(0.20))
+                                .foregroundStyle(.white)
                                 .cornerRadius(12)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .stroke(selection == option ? Color("purpleLight") : Color.clear, lineWidth: 2)
+                                        .stroke(Color("purpleLight"), lineWidth: selection == option ? 4 : 0)
                                 )
                         }
                     }
                 }
+                
                 
                 Button(action: {
                     guard let selection else { return }
@@ -84,4 +94,8 @@ struct OnboardLiteracy: View {
             }
         }
     }
+}
+
+#Preview {
+    OnboardLiteracy()
 }
