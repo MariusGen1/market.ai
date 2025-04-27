@@ -53,7 +53,7 @@ struct Home: View {
                                 
                                 // individual stocks
                                 ScrollView(.horizontal, showsIndicators: false) {
-                                    HStack(spacing: 15) {
+                                    HStack(spacing: 10) {
                                         if let portfolio {
                                             ForEach(portfolio, id: \.ticker) { stock in
                                                 StockPillFYP(
@@ -75,7 +75,15 @@ struct Home: View {
                                 }
                                 .padding(.vertical, -8)
                                 
-                                // specific stock news section
+//                                Text("Pleasure to have you, Marius! We're preparing your feed. Come back in a bit!")
+//                                    .multilineTextAlignment(.center)
+//                                    .padding(.horizontal, 40)
+//                                    .foregroundColor(.white)
+//                                    .opacity(0.8)
+//                                    .padding(.top, 100)
+//                                    .font(.footnote)
+//                                
+//                                 specific stock news section
                                 if let selected = selectedStock {
                                     VStack {
                                         HStack {

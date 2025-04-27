@@ -30,14 +30,14 @@ struct TopBento: View {
             .frame(width: geo.size.width - 32, height: 300)
             .clipped()
             
-            HStack(alignment: .bottom) {
+            VStack(alignment: .leading) {
                 Text(article.title.replacingOccurrences(of: "#", with: ""))
                     .foregroundColor(.white)
                     .font(.system(size: 16, weight: .bold))
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
                 Spacer()
-                Text(article.ts.compactTimeSince() + " ago")
+                Text(article.ts.compactTimeSince(articleId: article.articleId) + " ago")
                     .foregroundColor(.gray)
                     .font(.system(size: 12, weight: .light))
             }
@@ -82,7 +82,7 @@ struct MiddleBento: View {
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
                 
-                Text(article.ts.compactTimeSince()  + " ago")
+                Text(article.ts.compactTimeSince(articleId: article.articleId)  + " ago")
                     .foregroundColor(.gray)
                     .font(.system(size: 12, weight: .light))
             }
@@ -109,7 +109,7 @@ struct BottomBento: View {
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
                 
-                Text(article.ts.compactTimeSince() + " ago")
+                Text(article.ts.compactTimeSince(articleId: article.articleId) + " ago")
                     .font(.caption)
                     .foregroundColor(.gray)
             }
@@ -174,7 +174,7 @@ extension View {
 
 
 extension Date {
-    func compactTimeSince() -> String {
+    func compactTimeSince(articleId: Int) -> String {
         let diff = Date().timeIntervalSince(self)
         
         if diff < 10 {

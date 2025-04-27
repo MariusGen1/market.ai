@@ -4,16 +4,14 @@ struct StockPill: View {
   let stock: Stock
   @Binding var selectedStocks: [Stock]
 
-  private var isSelected: Bool {
-    selectedStocks.contains { $0.ticker == stock.ticker }
-  }
+  private var isSelected: Bool { selectedStocks.contains { $0.ticker == stock.ticker } }
 
   var body: some View {
     HStack(spacing: 8) {
       // hardcoded image preferred…
       if let img = stock.hardcodedImage {
         img
-          .resizable()
+        .resizable()
           .frame(width:27, height:27)
           .clipShape(RoundedRectangle(cornerRadius:8))
           .padding(.trailing,10)
@@ -41,15 +39,11 @@ struct StockPill: View {
 
       Text(stock.ticker.isEmpty ? stock.name : stock.ticker)
         .font(.system(size:12, weight:.bold))
-        .foregroundColor(.white)
+        .foregroundColor(isSelected ? .black : .white)
     }
     .padding(12)
-    .background(Color.gray.opacity(0.2))
+    .background(isSelected ? .purpleLight.opacity(0.50) : Color.gray.opacity(0.2))
     .cornerRadius(30)
-    .overlay(
-        RoundedRectangle(cornerRadius: 30)
-            .stroke(Color("purpleLight"), lineWidth: isSelected ? 4 : 0)
-    )
     .onTapGesture {
       if let idx = selectedStocks.firstIndex(where: { $0.ticker == stock.ticker }) {
         selectedStocks.remove(at: idx)
@@ -104,4 +98,3 @@ struct StockPillFYP: View {
         }
     }
 }
-

@@ -64,7 +64,7 @@ struct GoogleSignInButton: View {
                     
                     if let user = Auth.auth().currentUser {
                         DispatchQueue.main.async {
-                            navigationController.screen = .onboardLiteracy(user: user)
+                            navigationController.screen = .landing(user: user)
                         }
                     } else {
                         print("Something went wrong :(")

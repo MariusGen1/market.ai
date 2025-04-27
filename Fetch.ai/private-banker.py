@@ -21,7 +21,15 @@ class PrivateBankerInput(Model):
 agent = Agent()
 
 def articleMessageJson(articleMessage: ArticleMessage) -> str:
-    return "\{\"title\":\"" + articleMessage.title + "\"" + "\}"
+    d = {
+        "url": articleMessage.url,
+        "title": articleMessage.title,
+        "source": articleMessage.source,
+        "published_at": articleMessage.published_at,
+        "content": articleMessage.html
+    }
+
+    return json.dumps(d)
 
 @agent.on_message(model=PrivateBankerInput)
 async def handle_article(ctx: Context, sender: str, inp: PrivateBankerInput):
@@ -51,7 +59,8 @@ async def handle_article(ctx: Context, sender: str, inp: PrivateBankerInput):
         "portfolio_impact": "Today’s tariff shock could translate into slimmer profit margins and short-term price volatility. You may see Tesla’s manufacturing costs rise by 5–8%, while Nvidia might incur a 3–6% bump in chip production expenses. Consider monitoring earnings guidance and possibly rebalancing to hedge against further trade-policy risks."
         "image_url": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.fox4news.com%2Fnews%2Famericans-talk-trump-tariffs-poll&psig=AOvVaw318sIDSq-cgSoLcmpNbbQ9&ust=1745800053737000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCPi-tJL69owDFQAAAAAdAAAAABAE",
         "importance_level": 80,
-        "sources": "https://www.cnn.com/2025/04/26/business/trump-tariffs-small-businesses/index.html,https://thehill.com/homenews/administration/5264148-trump-china-tariffs/"
+        "sources": "https://www.cnn.com/2025/04/26/business/trump-tariffs-small-businesses/index.html,https://thehill.com/homenews/administration/5264148-trump-china-tariffs/",
+        "relevant_tickers": "AAPL,NVDA"
         }
 
         Note that you should pick the image URL from the ones in the articles you are summarizing. Use the image from the most relevant article.
@@ -64,6 +73,8 @@ async def handle_article(ctx: Context, sender: str, inp: PrivateBankerInput):
         DO NOT USE NEWLINES. Instead, you must use \\n (backslash-n) every time you are looking to enter a newline.
         VERY IMPORTANT: Your output is an ARRAY OF JSON OBJECTS like the one above, WITH NO OTHER CONTENT WHATSOEVER. You should not wrap it in a markdown JSON tag.
         You should NOT use ANY MARKDOWN HEADERS/TITLES.
+        For the image url, you should autonomously find an image that very relevant to the article/companies mentioned. It should illustrate the headline well, and YOU MUST GIVE A VALID URL TO AN IMAGE FILE.
+        The relevant tickers should be the list of tickers you found in my portfolio that are relevant to the article. THEY MUST BE COMMA-SEPARATED WITH NO SPACES.
         """
 
         literacy_level = user_info["financial_literacy_level"]
@@ -85,6 +96,7 @@ async def handle_article(ctx: Context, sender: str, inp: PrivateBankerInput):
         Here are the recent articles that have been presented to the user (make sure to not make duplicates of these):
         Here are the latest articles (the ones you should focus on, and present to the user in a summarized and relevant format - excluding irrelevant ones):
         REMEMBER, YOU SHOULD ABSOLUTELY NOT WRAP THE RESPONSE IN BACKTICKS TO INDICATE THAT IT'S JSON. THE RESPONSE SHOULD START WITH A SQUARE BRACKET AND END WITH ONE.
+        For the image url, you should autonomously find an image that very relevant to the article/companies mentioned. It should illustrate the headline well, and YOU MUST GIVE A VALID URL TO AN IMAGE FILE.
         """
 
         data = {
@@ -105,7 +117,7 @@ async def handle_article(ctx: Context, sender: str, inp: PrivateBankerInput):
         }
 
         response = requests.post("https://api.asi1.ai/v1/chat/completions", json=data, headers={
-            "Authorization": "bearer sk_6c8be2ce10e84e41898335e067068f9da156f3b49a454fb391ace8889b14a20a"
+            "Authorization": "bearer sk_f6b3a8e626a84fc6aca075ab5d7c6001c737b6cba93a4d61b9e7c34ef4d849ec"
         })
 
         response.raise_for_status()
@@ -124,7 +136,8 @@ async def handle_article(ctx: Context, sender: str, inp: PrivateBankerInput):
                     "image_url": article.get("image_url"),
                     "sources": article.get("sources"),
                     "importance_level": article.get("importance_level"),
-                    "uid": inp.uid
+                    "uid": inp.uid,
+                    "relevant_tickers": article.get("relevant_tickers")
                 }) as resp:
                     ctx.logger.info("Done!")
             

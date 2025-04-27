@@ -139,6 +139,7 @@ struct RoundedTextContainer: View {
     
     var body: some View {
         Text(LocalizedStringKey(content))
+            .frame(maxWidth: .infinity)
             .font(.system(size: 16))
             .foregroundColor(.white.opacity(0.8))
             .fixedSize(horizontal: false, vertical: true)

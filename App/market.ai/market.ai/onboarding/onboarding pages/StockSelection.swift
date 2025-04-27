@@ -11,10 +11,6 @@ struct OnboardStocks: View {
     @State private var searchText: String = ""
     @State private var showSelections: Bool = false
     
-    @State private var debouncedText: String = ""
-    @State private var cancellables = Set<AnyCancellable>()
-
-
     var body: some View {
         ZStack {
             Color("bgNavy").ignoresSafeArea()
@@ -39,8 +35,8 @@ struct OnboardStocks: View {
                         }
                     }
                     
-                    Text("Select the stocks that match your portfolio. Marketplace will tailor your daily updates to these selections.")
-                        .font(.system(size: 17))
+                    Text("Select the stocks in your portfolio. market.ai will tailor your daily updates to these selections.")
+                        .font(.system(size: 16))
                         .foregroundColor(.gray)
                 }
                 
@@ -54,8 +50,6 @@ struct OnboardStocks: View {
                 .background(.gray.opacity(0.18))
                 .foregroundStyle(.white.opacity(0.75))
                 .cornerRadius(12)
-                .padding(.bottom, 10)
-                
                 
                 StockDisplay(
                     stocks: stocks.isEmpty ? top50stocks : stocks,
@@ -69,7 +63,7 @@ struct OnboardStocks: View {
                     Task {
                         do {
                             guard case .onboardStocks(let user, let financialLiteracyLevel) = navigationController.screen else { fatalError() }
-                            try await UserService.createUser(uid: user.uid, financialLiteracyLevel: financialLiteracyLevel, stocks: stocks)
+//                            try await UserService.createUser(uid: user.uid, financialLiteracyLevel: financialLiteracyLevel, stocks: stocks)
                             RequestHelper.configure(for: user)
                             navigationController.screen = .home(user: user)
                         } catch { print(error) }
@@ -109,15 +103,7 @@ struct OnboardStocks: View {
             Portfolio(selectedStocks: $selectedStocks)
                 .presentationDetents([.fraction(0.50)])
         }
-        .onReceive(Just(searchText)
-            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
-        ) { value in
-            self.debouncedText = value
-        }
-        .onChange(of: searchText) { _, newValue in
-            debounceSearch(newValue)
-        }
-        .onChange(of: debouncedText) { _, newTerm in
+        .onChange(of: searchText) { _, newTerm in
             guard !newTerm.isEmpty else {
                 self.stocks = []
                 return
@@ -125,8 +111,6 @@ struct OnboardStocks: View {
             
             let stockSearcher = StockSearcher()
             stockSearcher.searchStocks(for: newTerm) { result in
-                if newTerm != debouncedText { return }
-                
                 switch result {
                 case .success(let stocks):
                     self.stocks = stocks
@@ -135,17 +119,6 @@ struct OnboardStocks: View {
                 }
             }
         }
-    }
-    private func debounceSearch(_ text: String) {
-        cancellables.forEach { $0.cancel() }
-        cancellables.removeAll()
-        
-        Just(text)
-            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
-            .sink { value in
-                self.debouncedText = value
-            }
-            .store(in: &cancellables)
     }
 }
 
@@ -172,6 +145,7 @@ struct StockDisplay: View {
                     }
                 }
             }
+            .padding(.vertical, 2)
         }
         .padding(.top)
     }

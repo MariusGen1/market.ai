@@ -52,7 +52,8 @@ struct WelcomeScreen: View {
                     Spacer()
 
                     Button(action: {
-                        navigationController.screen = .login
+                        guard case .landing(let user) = navigationController.screen else { return }
+                        navigationController.screen = .onboardLiteracy(user: user)
                     }) {
                         Text("Continue")
                             .font(.system(size: 18, weight: .medium))

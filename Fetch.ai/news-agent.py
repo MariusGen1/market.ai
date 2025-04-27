@@ -2,7 +2,7 @@ from uagents import Agent, Context
 import aiohttp
 from datetime import datetime, timezone
 
-API_KEY = '96f0dc70b16d2643a880627a24719b37' # We're disabling this as soon as the hackathon is over 😎
+API_KEY = '96f0dc70b16d2643a880627a24719b37'
 BASE_URL = f'http://api.mediastack.com/v1/news?access_key={API_KEY}&languages=en&limit=10'
 
 class ArticleMessage(Model):
@@ -53,11 +53,11 @@ async def fetch_news(ctx: Context):
         new_articles.sort(key=lambda x: x[0])
 
         for published_at, article in new_articles:
-            # ctx.logger.info(f"New Article Found:")
-            # ctx.logger.info(f"  Title: {article.get('title')}")
-            # ctx.logger.info(f"  Source: {article.get('source')}")
-            # ctx.logger.info(f"  Published: {article.get('published_at')}")
-            # ctx.logger.info(f"  URL: {article.get('url')}\n")
+            ctx.logger.info(f"New Article Found:")
+            ctx.logger.info(f"  Title: {article.get('title')}")
+            ctx.logger.info(f"  Source: {article.get('source')}")
+            ctx.logger.info(f"  Published: {article.get('published_at')}")
+            ctx.logger.info(f"  URL: {article.get('url')}\n")
 
             await ctx.send("agent1qgwaxpsnpzrh39xapna6svwdqhgzjsnax8ymgt4ds7yh3x4p4nlgyqxmja3", ArticleMessage(
                 url=article.get('url'),
